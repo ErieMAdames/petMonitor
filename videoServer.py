@@ -43,7 +43,7 @@ window.onload = () => {
 </head>
 <body>
 <h1>Picamera2 MJPEG Streaming Demo</h1>
-<img src="stream.mjpg" width="640" height="480" />
+<img src="stream.mjpg" width="640" height="480" style="transform: rotate(180deg);"/>
 </body>
 </html>
 """
@@ -157,7 +157,7 @@ async def start_websocket_server():
 
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (640, 480), "transform": 180}))
+picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 picam2.set_rotation(180)
 output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
