@@ -1,15 +1,15 @@
 import RPi.GPIO as GPIO
 
 class Pin(object):
-    OUT = GPIO.OUT                  
-    IN = GPIO.IN                   
-    IRQ_FALLING = GPIO.FALLING      
-    IRQ_RISING = GPIO.RISING        
-    IRQ_RISING_FALLING = GPIO.BOTH  
-    PULL_UP = GPIO.PUD_UP           
-    PULL_DOWN = GPIO.PUD_DOWN       
-    PULL_NONE = None                
-    _dict = {                       
+    OUT = GPIO.OUT
+    IN = GPIO.IN
+    IRQ_FALLING = GPIO.FALLING
+    IRQ_RISING = GPIO.RISING
+    IRQ_RISING_FALLING = GPIO.BOTH
+    PULL_UP = GPIO.PUD_UP
+    PULL_DOWN = GPIO.PUD_DOWN
+    PULL_NONE = None
+    _dict = {
         "D0":  17,
         "D1":  18,
         "D2":  27,
@@ -32,27 +32,27 @@ class Pin(object):
     }
 
     def __init__(self, *value):
-        super().__init__()          
-        GPIO.setmode(GPIO.BCM)      
-        GPIO.setwarnings(False)     
-        if len(value) > 0:          
+        super().__init__()
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setwarnings(False)
+        if len(value) > 0:
             pin = value[0]
-        if len(value) > 1:          
+        if len(value) > 1:
             mode = value[1]
         else:
             mode = None
-        if len(value) > 2:          
+        if len(value) > 2:
             setup = value[2]
         else:
             setup = None
-        if isinstance(pin, str):    
+        if isinstance(pin, str):
             try:
                 self._bname = pin
                 self._pin = self.dict()[pin]
             except Exception as e:
                 print(e)
                 self._error('Pin should be in %s, not %s' % (self._dict, pin))
-        elif isinstance(pin, int):  
+        elif isinstance(pin, int):
             self._pin = pin
         else:
             self._error('Pin should be in %s, not %s' % (self._dict, pin))
@@ -60,7 +60,7 @@ class Pin(object):
         self.init(mode, pull=setup)
     #    self._info("Pin init finished.")
         
-    def init(self, mode, pull=PULL_NONE):   
+    def init(self, mode, pull=PULL_NONE):
         self._pull = pull
         self._mode = mode
         if mode != None:
@@ -69,8 +69,8 @@ class Pin(object):
             else:
                 GPIO.setup(self._pin, mode)
 
-    def dict(self, *_dict):                 
-        if len(_dict) == 0:                 
+    def dict(self, *_dict):
+        if len(_dict) == 0:
             return self._dict
         else:
             if isinstance(_dict, dict):
@@ -82,31 +82,30 @@ class Pin(object):
     def __call__(self, value):
         return self.value(value)
 
-    def value(self, *value):                 
+    def value(self, *value):
         if len(value) == 0:
             self.mode(self.IN)
             result = GPIO.input(self._pin)
-        #    self._debug("read pin %s: %s" % (self._pin, result))
             return result
-        else:                               
+        else:
             value = value[0]
             self.mode(self.OUT)
             GPIO.output(self._pin, value)
             return value
 
-    def on(self):                           
+    def on(self):
         return self.value(1)
 
-    def off(self):                          
+    def off(self):
         return self.value(0)
 
-    def high(self):                        
+    def high(self):
         return self.on()
 
-    def low(self):                          
+    def low(self):
         return self.off()
 
-    def mode(self, *value):                 
+    def mode(self, *value):
         if len(value) == 0:
             return self._mode
         else:
@@ -114,14 +113,14 @@ class Pin(object):
             self._mode = mode
             GPIO.setup(self._pin, mode)
 
-    def pull(self, *value):     
+    def pull(self, *value):
         return self._pull
 
-    def irq(self, handler=None, trigger=None):      
+    def irq(self, handler=None, trigger=None):
         self.mode(self.IN)
         GPIO.add_event_detect(self._pin, trigger, callback=handler)
 
-    def name(self):                                 
+    def name(self):
         return "GPIO%s"%self._pin
 
     def names(self):
