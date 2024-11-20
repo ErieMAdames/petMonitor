@@ -72,7 +72,7 @@ def right():
     global servo0_angle
     servo0_angle = max(servo0_angle - 2, -90)
     servo0.set_angle(servo0_angle + servo0_angle_offset)
-def lefta():
+def left():
     global servo0_angle_offset
     global servo0_angle
     servo0_angle = min(servo0_angle + 2, 90)
