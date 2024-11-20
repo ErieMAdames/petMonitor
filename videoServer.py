@@ -103,7 +103,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     daemon_threads = True
 
 
-async def websocket_handler(websocket, path):
+async def websocket_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
         key = data.get("key")
