@@ -58,15 +58,19 @@ servo0.set_angle(servo0_angle_offset)
 servo0.set_angle(servo0_angle_offset)
 
 def up():
+    global servo1_angle_offset
     servo1_angle = max(servo1_angle - 2, -90)
     servo1.set_angle(servo1_angle + servo1_angle_offset)
 def down():
+    global servo1_angle_offset
     servo1_angle = min(servo1_angle + 2 , 90)
     servo1.set_angle(servo1_angle + servo1_angle_offset)
 def left():
+    global servo0_angle_offset
     servo0_angle = max(servo0_angle - 2, -90)
     servo0.set_angle(servo0_angle + servo0_angle_offset)
 def right():
+    global servo0_angle_offset
     servo0_angle = min(servo0_angle + 2, 90)
     servo0.set_angle(servo0_angle + servo0_angle_offset)
 
