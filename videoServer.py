@@ -73,7 +73,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
 
 # Initialize Picamera2
 picam2 = Picamera2()
-camera_config = picam2.create_video_configuration(main={"size": (640, 480), "format": "sYCC"})
+camera_config = picam2.create_video_configuration(main={"size": (640, 480)})
 picam2.configure(camera_config)
 
 output = StreamingOutput()
