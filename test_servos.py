@@ -1,4 +1,3 @@
-
 from servo import Servo
 from pwm import PWM
 import time
@@ -11,6 +10,8 @@ servo1_angle = 0
 servo0 = Servo(PWM("P0"))
 servo1 = Servo(PWM("P1"))
 
+print(servo0)
+print(servo1)
 # servo0.set_angle(servo0_angle_offset)
 # servo0.set_angle(servo0_angle_offset)
 
@@ -20,3 +21,7 @@ time.sleep(1)
 
 servo1.set_angle(90)
 servo0.set_angle(90)
+
+time.sleep(2)
+
+print('Done')
