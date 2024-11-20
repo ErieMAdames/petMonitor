@@ -1,32 +1,42 @@
+#!/usr/bin/python3
+
+# Mostly copied from https://picamera.readthedocs.io/en/release-1.13/recipes2.html
+# Run this script, then point a web browser at http:<this-ip-address>:8000
+# Note: needs simplejpeg to be installed (pip3 install simplejpeg).
+
 import io
 import logging
+import socketserver
 from http import server
 from threading import Condition
-import socketserver
-from picamera2 import Picamera2, MappedArray
 
-# HTML Page
+from picamera2 import Picamera2
+from picamera2.encoders import JpegEncoder
+from picamera2.outputs import FileOutput
+
 PAGE = """\
 <html>
 <head>
-<title>Raspberry Pi - Surveillance Camera</title>
+<title>picamera2 MJPEG streaming demo</title>
 </head>
 <body>
-<center><h1>Raspberry Pi - Surveillance Camera</h1></center>
-<center><img src="stream.mjpg" width="640" height="480"></center>
+<h1>Picamera2 MJPEG Streaming Demo</h1>
+<img src="stream.mjpg" width="640" height="480" />
 </body>
 </html>
 """
 
-class StreamingOutput(object):
+
+class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
         self.frame = None
         self.condition = Condition()
 
-    def update_frame(self, frame):
+    def write(self, buf):
         with self.condition:
-            self.frame = frame
+            self.frame = buf
             self.condition.notify_all()
+
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -67,29 +77,20 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
             self.send_error(404)
             self.end_headers()
 
+
 class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
 
-# Initialize Picamera2
+
 picam2 = Picamera2()
-camera_config = picam2.create_video_configuration(main={"size": (640, 480)})
-picam2.configure(camera_config)
-
+picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
 output = StreamingOutput()
-
-# Callback for capturing frames
-def mjpeg_callback(request):
-    with MappedArray(request, "main") as m:
-        # Convert frame to JPEG and store in the output object
-        output.update_frame(m.array.tobytes())
-
-picam2.start_recording(mjpeg_callback)
+picam2.start_recording(JpegEncoder(), FileOutput(output))
 
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
-    print("Streaming on http://<your_pi_ip>:8000")
     server.serve_forever()
 finally:
     picam2.stop_recording()
