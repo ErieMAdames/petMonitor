@@ -148,7 +148,6 @@ async def websocket_handler(websocket):
                 right()
             if key == 's':
                 down()
-            print(f"Key: {key}, Action: {action}")
 
 
 async def start_websocket_server():
