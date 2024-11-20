@@ -20,7 +20,7 @@ PAGE = """\
 let ws;
 
 function initWebSocket() {
-    ws = new WebSocket('ws://' + window.location.host + '/ws');
+    ws = new WebSocket('ws://' + window.location.hostname + ':8765/ws');
     ws.onopen = () => console.log("WebSocket connection established");
     ws.onclose = () => console.log("WebSocket connection closed");
 }
