@@ -13,7 +13,7 @@ servo0 = Servo(PWM("P0"))
 servo1 = Servo(PWM("P1"))
 
 servo0.set_angle(servo0_angle_offset)
-servo0.set_angle(servo0_angle_offset)\
+servo0.set_angle(servo0_angle_offset)
 
 # Set ulimit for file descriptors
 os.system('ulimit -n 4096')

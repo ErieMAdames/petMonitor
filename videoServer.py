@@ -6,7 +6,8 @@ import socketserver
 from http import server
 from threading import Condition, Thread
 import json
-
+from servo import Servo
+from pwm import PWM
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
@@ -16,7 +17,7 @@ import websockets
 PAGE = """\
 <html>
 <head>
-<title>Picamera2 MJPEG Streaming Demo</title>
+<title>Video Stream</title>
 <script>
 let ws;
 
@@ -46,7 +47,28 @@ window.onload = () => {
 </body>
 </html>
 """
+servo0_angle_offset = 0
+servo1_angle_offset = -8
+servo0_angle = 0
+servo1_angle = 0 
+servo0 = Servo(PWM("P0"))
+servo1 = Servo(PWM("P1"))
 
+servo0.set_angle(servo0_angle_offset)
+servo0.set_angle(servo0_angle_offset)
+
+def up():
+    servo1_angle = max(servo1_angle - 2, -90)
+    servo1.set_angle(servo1_angle + servo1_angle_offset)
+def down():
+    servo1_angle = min(servo1_angle + 2 , 90)
+    servo1.set_angle(servo1_angle + servo1_angle_offset)
+def left():
+    servo0_angle = max(servo0_angle - 2, -90)
+    servo0.set_angle(servo0_angle + servo0_angle_offset)
+def right():
+    servo0_angle = min(servo0_angle + 2, 90)
+    servo0.set_angle(servo0_angle + servo0_angle_offset)
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -110,6 +132,14 @@ async def websocket_handler(websocket):
         key = data.get("key")
         action = data.get("action")
         if key and action:
+            if key == 'w':
+                up()
+            if key == 'a':
+                left()
+            if key == 'd':
+                right()
+            if key == 's':
+                down()
             print(f"Key: {key}, Action: {action}")
 
 
