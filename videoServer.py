@@ -222,7 +222,15 @@ async def start_websocket_server():
 async def start_websocket_server_poop_monitor():
     async with websockets.serve(websocket_poop_handler, "0.0.0.0", 8744):
         await asyncio.Future()  # Run forever
-
+def run_websocket_server_in_thread(coroutine):
+    def run_loop():
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        loop.run_until_complete(coroutine)
+    thread = Thread(target=run_loop)
+    thread.daemon = True
+    thread.start()
+    return thread
 
 picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
@@ -239,7 +247,11 @@ try:
     http_server_thread.daemon = True
     http_server_thread.start()
 
-    asyncio.run(start_websocket_server())
-    asyncio.run(start_websocket_server_poop_monitor())
+    run_websocket_server_in_thread(start_websocket_server())
+    run_websocket_server_in_thread(start_websocket_server_poop_monitor())
+    while True:
+        continue
+except KeyboardInterrupt:
+    print("Shutting down servers.")
 finally:
     picam2.stop_recording()
