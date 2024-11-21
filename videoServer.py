@@ -218,7 +218,7 @@ async def websocket_poop_handler(websocket):
                 print('captured')
                 _, jpeg = cv2.imencode('.jpg', img)
                 print('jpeg')
-                yield jpeg.tobytes()
+                await websocket.send(jpeg.tobytes())
         except Exception as e:
             print(e)
 
