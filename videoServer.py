@@ -158,17 +158,10 @@ async def websocket_camera_movement_handler(websocket):
 async def websocket_poop_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
-        print('data')
-        try:
-            if data.get("dog", None) is not None:
-                print(data)
-                img = picam2_dog_monitor.capture_array()
-                print('captured')
-                _, jpeg = cv2.imencode('.jpg', img)
-                print('jpeg')
-                await websocket.send(jpeg.tobytes())
-        except Exception as e:
-            print(e)
+        if data.get("dog", None) is not None:
+            img = picam2_dog_monitor.capture_array()
+            _, jpeg = cv2.imencode('.jpg', img)
+            await websocket.send(jpeg.tobytes())
 
 
 async def start_websocket_server():
