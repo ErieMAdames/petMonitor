@@ -216,6 +216,7 @@ async def websocket_poop_handler(websocket):
             img = picam2_dog_monitor.capture_array()
             print('captured')
             _, jpeg = cv2.imencode('.jpg', img)
+            print('jpeg')
             return jpeg.tobytes()
 
 
