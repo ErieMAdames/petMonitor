@@ -212,8 +212,10 @@ async def websocket_poop_handler(websocket):
         data = json.loads(message)
         print('data')
         if data.get("dog", None) is not None:
-            picam2_dog_monitor.capture_array()
-            _, jpeg = cv2.imencode('.jpg', picam2_dog_monitor.capture_array())
+            print(data)
+            img = picam2_dog_monitor.capture_array()
+            print('captured')
+            _, jpeg = cv2.imencode('.jpg', img)
             return jpeg.tobytes()
 
 
