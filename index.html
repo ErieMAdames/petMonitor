@@ -21,6 +21,12 @@ function initWebSocket() {
             poopCapture.src = imageUrl;
         }
     };
+    setInterval(
+        function() {
+            ws_images.send(JSON.stringify({ dog: "dog" }));
+        },
+        500
+    )
 }
 
 function handleKey(event) {
@@ -29,9 +35,9 @@ function handleKey(event) {
         ws.send(JSON.stringify({ key: key, action: event.type }));
     }
 
-    if (['p'].includes(key)) {
-        ws_images.send(JSON.stringify({ dog: "dog" }));
-    }
+    // if (['p'].includes(key)) {
+    //     ws_images.send(JSON.stringify({ dog: "dog" }));
+    // }
 }
 
 window.onload = () => {
