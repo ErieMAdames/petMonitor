@@ -227,6 +227,7 @@ def run_websocket_server_in_thread(coroutine):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(coroutine)
+    
     thread = Thread(target=run_loop)
     thread.daemon = True
     thread.start()
@@ -248,10 +249,6 @@ try:
     http_server_thread.start()
 
     run_websocket_server_in_thread(start_websocket_server())
-    run_websocket_server_in_thread(start_websocket_server_poop_monitor())
-    while True:
-        continue
-except KeyboardInterrupt:
-    print("Shutting down servers.")
+    asyncio.run(start_websocket_server_poop_monitor())
 finally:
     picam2.stop_recording()
