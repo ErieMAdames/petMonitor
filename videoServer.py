@@ -16,62 +16,10 @@ from picamera2.outputs import FileOutput
 import asyncio
 import websockets
 
-PAGE = """\
-<html>
-<head>
-<title>Video Stream</title>
-<script>
-let ws;
+PAGE = ''
+with open('index.html', 'r') as f:
+    PAGE = f.read()
 
-function initWebSocket() {
-    ws = new WebSocket('ws://' + window.location.hostname + ':8765/ws');
-    ws_images = new WebSocket('ws://' + window.location.hostname + ':8744/ws');
-    ws_images.binaryType = "arraybuffer";
-    ws.onopen = () => console.log("WebSocket connection established");
-    ws.onclose = () => console.log("WebSocket connection closed");
-    ws_images.onopen = () => console.log("WebSocket for Shadow & Habichuela connection established");
-    ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
-    ws_images.onmessage = (event) => {
-        if (event.data instanceof ArrayBuffer) {
-            // 4. Convert the ArrayBuffer to a Blob
-            const blob = new Blob([event.data], { type: "image/jpeg" }); // Adjust type as needed
-
-            // 5. Create an image URL from the Blob
-            const imageUrl = URL.createObjectURL(blob);
-
-            // 6. Display the image
-            const img = document.createElement("img");
-            img.src = imageUrl;
-            document.body.appendChild(img);
-        }
-    };
-}
-
-function handleKey(event) {
-    const key = event.key.toLowerCase();
-    if (['w', 'a', 's', 'd'].includes(key)) {
-        ws.send(JSON.stringify({ key: key, action: event.type }));
-    }
-
-    if (['p'].includes(key)) {
-        ws_images.send(JSON.stringify({ dog: "dog" }));
-    }
-}
-
-window.onload = () => {
-    initWebSocket();
-    document.addEventListener('keydown', handleKey);
-    document.addEventListener('keyup', handleKey);
-};
-
-</script>
-</head>
-<body>
-<h1>Picamera2 MJPEG Streaming Demo</h1>
-<img src="stream.mjpg" width="1280" height="960" style="transform: rotate(180deg);"/>
-</body>
-</html>
-"""
 servo0_angle_offset = 0
 servo1_angle_offset = -8
 servo0_angle = 0
