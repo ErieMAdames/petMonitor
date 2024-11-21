@@ -18,10 +18,14 @@ class ADC(I2C):
         
     def read(self):                     
         self.send([self.chn, 0, 0], self.ADDR)
-        value_h = self.recv(1, self.ADDR)[0]
-        value_l = self.recv(1, self.ADDR)[0]
+        h = self.recv(1, self.ADDR)
+        value_h = h[0]
+        l = self.recv(1, self.ADDR)
+        value_l = l[0]
         print('value_h : ' + str(value_h))
+        print(h)
         print('value_l : ' + str(value_l))
+        print(l)
         value = (value_h << 8) + value_l
         return value
 
