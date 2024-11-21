@@ -239,7 +239,7 @@ try:
     http_server_thread.daemon = True
     http_server_thread.start()
 
-    asyncio.run(start_websocket_server_poop_monitor())
     asyncio.run(start_websocket_server())
+    asyncio.run(start_websocket_server_poop_monitor())
 finally:
     picam2.stop_recording()
