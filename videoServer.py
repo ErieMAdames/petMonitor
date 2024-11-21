@@ -31,6 +31,20 @@ function initWebSocket() {
     ws.onclose = () => console.log("WebSocket connection closed");
     ws_images.onopen = () => console.log("WebSocket for Shadow & Habichuela connection established");
     ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
+    ws_images.onmessage = (event) => {
+        if (event.data instanceof ArrayBuffer) {
+            // 4. Convert the ArrayBuffer to a Blob
+            const blob = new Blob([event.data], { type: "image/jpeg" }); // Adjust type as needed
+
+            // 5. Create an image URL from the Blob
+            const imageUrl = URL.createObjectURL(blob);
+
+            // 6. Display the image
+            const img = document.createElement("img");
+            img.src = imageUrl;
+            document.body.appendChild(img);
+        }
+    };
 }
 
 function handleKey(event) {
@@ -48,20 +62,6 @@ window.onload = () => {
     initWebSocket();
     document.addEventListener('keydown', handleKey);
     document.addEventListener('keyup', handleKey);
-};
-ws_images.onmessage = (event) => {
-  if (event.data instanceof ArrayBuffer) {
-    // 4. Convert the ArrayBuffer to a Blob
-    const blob = new Blob([event.data], { type: "image/jpeg" }); // Adjust type as needed
-
-    // 5. Create an image URL from the Blob
-    const imageUrl = URL.createObjectURL(blob);
-
-    // 6. Display the image
-    const img = document.createElement("img");
-    img.src = imageUrl;
-    document.body.appendChild(img);
-  }
 };
 
 </script>
