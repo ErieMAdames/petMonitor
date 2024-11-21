@@ -106,10 +106,7 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
 
-def draw_red_boxes_around_dark_areas(image_path, output_path="output.jpg"):
-    image = cv2.imread(image_path)
-    if image is None:
-        raise ValueError("Image not found. Please check the path.")
+def find_poop(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, thresholded = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(thresholded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -141,6 +138,7 @@ def draw_red_boxes_around_dark_areas(image_path, output_path="output.jpg"):
                     dx_max_full = x + dx_max
                     dy_max_full = y + dy_max
                     cv2.rectangle(image, (dx_min_full, dy_min_full), (dx_max_full, dy_max_full), (0, 0, 255), 2)
+    return image
 async def websocket_camera_movement_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
@@ -160,7 +158,8 @@ async def websocket_poop_handler(websocket):
         data = json.loads(message)
         if data.get("dog", None) is not None:
             img = picam2_dog_monitor.capture_array()
-            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) 
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = find_poop(img)
             _, jpeg = cv2.imencode('.jpg', img)
             await websocket.send(jpeg.tobytes())
 
