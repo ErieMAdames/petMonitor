@@ -106,14 +106,24 @@ class StreamingServer(socketserver.ThreadingMixIn, server.HTTPServer):
     allow_reuse_address = True
     daemon_threads = True
 
+def increase_brightness(img, value=30):
+    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    h, s, v = cv2.split(hsv)
+
+    lim = 255 - value
+    v[v > lim] = 255
+    v[v <= lim] += value
+
+    final_hsv = cv2.merge((h, s, v))
+    img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
+    return img
 def find_poop(image):
+    image = increase_brightness(image)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, thresholded = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(thresholded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)[:1]
-    print('finding')
     for contour in sorted_contours:
-        print('found')
         if cv2.contourArea(contour) > 100:
             x, y, w, h = cv2.boundingRect(contour)
             cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
