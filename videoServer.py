@@ -211,14 +211,17 @@ async def websocket_poop_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
         print('data')
-        if data.get("dog", None) is not None:
-            print(data)
-            img = picam2_dog_monitor.capture_array()
-            print('captured')
-            _, jpeg = cv2.imencode('.jpg', img)
-            print('jpeg')
-            print(jpeg.tobytes())
-            return jpeg.tobytes()
+        try:
+            if data.get("dog", None) is not None:
+                print(data)
+                img = picam2_dog_monitor.capture_array()
+                print('captured')
+                _, jpeg = cv2.imencode('.jpg', img)
+                print('jpeg')
+                print(jpeg.tobytes())
+                return jpeg.tobytes()
+        except Exception as e:
+            print(e)
 
 
 async def start_websocket_server():
