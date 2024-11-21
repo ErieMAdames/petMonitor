@@ -1,3 +1,6 @@
 from picamera2 import Picamera2
 
-print(Picamera2.global_camera_info())
+cameras = Picamera2.global_camera_info()
+
+for camera in cameras:
+    print(camera)
