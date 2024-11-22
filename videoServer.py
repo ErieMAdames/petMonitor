@@ -169,6 +169,7 @@ async def websocket_poop_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
         if data.get("pet", None) == 'shadow':
+            print('shadow')
             img = picam2_dog_monitor.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = find_poop(img)

@@ -15,6 +15,7 @@
         ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
         const shadowPoopCapture = document.querySelector('.shadow-poop-capture');
         ws_images.onmessage = (event) => {
+            console.log(event);
             if (event.data.image instanceof ArrayBuffer) {
                 const blob = new Blob([event.data.image], { type: "image/jpeg" });
                 const imageUrl = URL.createObjectURL(blob);
