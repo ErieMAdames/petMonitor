@@ -178,7 +178,7 @@ async def websocket_poop_handler(websocket):
             response = json.dumps({"pet": "shadow", "image": img_base64})
             await websocket.send(response)
         if data.get("pet", None) == 'habichuela':
-            img = picam2_dog_monitor.capture_array()
+            img = picam2_cat_monitor.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = find_poop(img)
             _, jpeg = cv2.imencode('.jpg', img)
