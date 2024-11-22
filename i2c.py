@@ -105,8 +105,10 @@ class I2C(object):
 
     def recv(self, recv, addr=0x00, timeout=0):
         if isinstance(recv, int):
+            print('isinstance(recv, int)')
             result = bytearray(recv)
         elif isinstance(recv, bytearray):
+            print('isinstance(recv, bytearray)')
             result = recv
         else:
             return False
