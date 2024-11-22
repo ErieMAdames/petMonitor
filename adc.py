@@ -24,9 +24,11 @@ class ADC(I2C):
         value_l = l[0]
         print('value_h : ' + str(value_h))
         print(value_h << 8)
-        print(int(h))
+        for hh in h:
+            print(hh)
         print('value_l : ' + str(value_l))
-        print(int(l))
+        for ll in l:
+            print(ll)
         value = (value_h << 8) + value_l
         return value
 
