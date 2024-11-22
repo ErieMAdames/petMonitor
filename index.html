@@ -18,6 +18,7 @@
         const habichuelaPoopCapture = document.querySelector('.habichuela-poop-capture');
         const habichuelaPoopDetectedWarning = document.querySelector('.habichuela-poop-capture-container .detected');
         const waterLevelMessage = document.querySelector('.water-level-message');
+        const foodLevelMessage = document.querySelector('.food-level-message');
         ws_images.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.image && data.pet) {
@@ -53,6 +54,15 @@
                     waterLevelMessage.classList.remove('refill');
                 }
             }
+            if (data.food_level) {
+                if (data.food_level < 1000) {
+                    foodLevelMessage.innerHTML = 'Food levels low. Refill food now';
+                    foodLevelMessage.classList.add('refill');
+                } else {
+                    foodLevelMessage.innerHTML = 'Food levels normal';
+                    foodLevelMessage.classList.remove('refill');
+                }
+            }
         };
         setInterval(
             function() {
@@ -64,6 +74,12 @@
         setInterval(
             function() {
                 ws_images.send(JSON.stringify({ water_level: "water_level" }));
+            },
+            500
+        );
+        setInterval(
+            function() {
+                ws_images.send(JSON.stringify({ food_level: "food_level" }));
             },
             500
         );
@@ -182,10 +198,11 @@
         padding: 10px;
         border-radius: 10px;
     }
-    .water-level-message.refill {
+    .water-level-message.refill,
+    .food-level-message.refill {
         animation: backgroundFlash 2s linear infinite;
     }
-    .water-level-container {
+    .water-food-level-container {
         width: 80vw;
         margin: 0 auto;
         margin-top: 80px;
@@ -216,9 +233,12 @@
                 </div>
             </div>
         </div>
-        <div class="water-level-container">
+        <div class="water-food-level-container">
             <p class="water-level-message">
                 Water level normal
+            </p>
+            <p class="food-level-message">
+                Food level normal
             </p>
         </div>
     </main>

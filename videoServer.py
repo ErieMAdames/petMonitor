@@ -11,6 +11,7 @@ import numpy as np
 from servo import Servo
 from pwm import PWM
 from adc import ADC
+from ultrasonic import Ultrasonic
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
@@ -34,6 +35,7 @@ servo0.set_angle(servo0_angle_offset)
 servo1.set_angle(servo1_angle_offset)
 shadow_brightness = 50
 habichuela_brightness = 50
+ultrasonic = Ultrasonic()
 def up():
     global servo1_angle_offset
     global servo1_angle
@@ -199,6 +201,10 @@ async def websocket_poop_handler(websocket):
         if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
             response = json.dumps({"water_level": water_level})
+            await websocket.send(response)
+        if data.get("food_level", None) == 'food_level':
+            food_level = ultrasonic.get_distance()
+            response = json.dumps({"food_level": food_level})
             await websocket.send(response)
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
