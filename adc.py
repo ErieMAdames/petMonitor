@@ -5,12 +5,12 @@ For comprehensive instructions and wiring diagrams, please visit:
 https://newbiely.com/tutorials/raspberry-pi/raspberry-pi-water-sensor
 """
 
-from i2c import I2C
+
 import time
 import Adafruit_ADS1x15
 
 # Create an ADS1115 ADC instance
-ADC = Adafruit_ADS1x15.ADS1115(i2c=I2C)
+ADC = Adafruit_ADS1x15.ADS1115()
 
 # Specify the ADC channel (0-3) based on your connection
 ADC_CHANNEL = 3 # A3 of ADS1115 module
