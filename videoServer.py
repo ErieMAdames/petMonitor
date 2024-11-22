@@ -169,6 +169,8 @@ async def websocket_camera_movement_handler(websocket):
                 down()
 async def websocket_poop_handler(websocket):
     async for message in websocket:
+        global shadow_brightness
+        global habichuela_brightness
         data = json.loads(message)
         if data.get("pet", None) == 'shadow':
             img = picam2_dog_monitor.capture_array()
@@ -187,10 +189,8 @@ async def websocket_poop_handler(websocket):
             response = json.dumps({"pet": "habichuela", "image": img_base64})
             await websocket.send(response)
         if data.get("slider", None) == 'shadow':
-            global shadow_brightness
             shadow_brightness = int(data.get('value', 50))
         if data.get("slider", None) == 'habichuela':
-            global habichuela_brightness
             habichuela_brightness = int(data.get('value', 50))
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
