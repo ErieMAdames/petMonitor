@@ -151,7 +151,7 @@ def find_poop(image, brightness = 50):
                     dy_min_full = y + dy_min
                     dx_max_full = x + dx_max
                     dy_max_full = y + dy_max
-                    cv2.rectangle(image, (dx_min_full, dy_min_full), (dx_max_full, dy_max_full), (0, 0, 255), .5)
+                    cv2.rectangle(image, (dx_min_full, dy_min_full), (dx_max_full, dy_max_full), (0, 0, 255), 1)
     return image
 async def websocket_camera_movement_handler(websocket):
     async for message in websocket:
