@@ -14,7 +14,9 @@
         ws_images.onopen = () => console.log("WebSocket for Shadow & Habichuela connection established");
         ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
         const shadowPoopCapture = document.querySelector('.shadow-poop-capture');
+        const shadowPoopDetectedWarning = document.querySelector('.shadow-poop-capture-container');
         const habichuelaPoopCapture = document.querySelector('.habichuela-poop-capture');
+        const habichuelaPoopDetectedWarning = document.querySelector('.habichuela-poop-capture-container');
         ws_images.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.image && data.pet) {
@@ -25,11 +27,20 @@
                 }
                 const blob = new Blob([byteNumbers], { type: "image/jpeg" });
                 const imageUrl = URL.createObjectURL(blob);
-                
                 if (data.pet === "shadow") {
                     shadowPoopCapture.src = imageUrl;
+                    if (data.detected) {
+                        shadowPoopDetectedWarning.style.visibility = 'visible';
+                    } else {
+                        shadowPoopDetectedWarning.style.visibility = 'hidden';
+                    }
                 } else if (data.pet === "habichuela") {
                     habichuelaPoopCapture.src = imageUrl;
+                    if (data.detected) {
+                        habichuelaPoopDetectedWarning.style.visibility = 'visible';
+                    } else {
+                        shadowPoopDetectedWarning.style.visibility = 'hidden';
+                    }
                 }
             }
         };
@@ -129,7 +140,7 @@
         color: white;
         padding: 10px;
         border-radius: 10px;
-        animation: blinker 1s linear infinite;
+        animation: blinker 2s linear infinite;
     }
     @keyframes blinker {
         50% {
