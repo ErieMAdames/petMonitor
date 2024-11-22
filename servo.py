@@ -22,13 +22,12 @@ class Servo():
             angle = int(angle)
         except:
             raise ValueError("Angle value should be int value, not %s"%angle)
-        # if angle < -90:
-        #     angle = -90
-        # if angle > 90:
-        #     angle = 90
+        if angle < -90:
+            angle = -90
+        if angle > 90:
+            angle = 90
         angle = angle + self.offset
         High_level_time = self.mapping(angle, -90, 90, self.MIN_PW, self.MAX_PW)
-        print(High_level_time)
         pwr =  High_level_time / 20000
         value = int(pwr * self.PERIOD)
         self.pin.pulse_width(value)
