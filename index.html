@@ -55,12 +55,29 @@
     };
 </script>
 <style>
+    html {
+        background-color: gainsboro;
+    }
+    header h1 {
+        font-size: 72px;
+        margin: 40px auto;
+        width: fit-content;
+        font-family: "Roboto", sans-serif;
+        font-weight: 100;
+        font-style: normal;
+    }
     body {
-        font-family: sans-serif;
+        font-family: "Roboto", sans-serif;
+        font-weight: 100;
+        font-style: normal;
     }
     main {
         display: flex;
         justify-content: space-around;
+    }
+    img {
+        border: 1px solid gray;
+        border-radius: 16px;
     }
     .main-cam {
         transform: rotate(180deg);
@@ -82,8 +99,14 @@
             <img src="stream.mjpg" class="main-cam"/>
         </div>
         <div class="poop-capture-container">
-            <img src="" class="shadow-poop-capture"/>
-            <img src="" class="habichuela-poop-capture"/>
+            <div class="shadow-poop-capture-container">
+                <p>Shadow's Pad</p>
+                <img src="" class="shadow-poop-capture"/>
+            </div>
+            <div class="habichuela-poop-capture-container">
+                <p>Habichuela's litter box</p>
+                <img src="" class="habichuela-poop-capture"/>
+            </div>
         </div>
     </main>
 </body>
