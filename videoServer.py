@@ -125,6 +125,7 @@ def find_poop(image, brightness = 50):
     _, thresholded = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(thresholded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)[:1]
+    detected = False
     for contour in sorted_contours:
         if cv2.contourArea(contour) > 100:
             x, y, w, h = cv2.boundingRect(contour)
@@ -140,6 +141,7 @@ def find_poop(image, brightness = 50):
             dark_contours = sorted(dark_contours, key=cv2.contourArea, reverse=True) 
             for dark_contour in dark_contours:
                 if cv2.contourArea(dark_contour) > 100:
+                    detected = True
                     dx, dy, dw, dh = cv2.boundingRect(dark_contour)
                     cv2.drawContours(image, [dark_contour], 0, (0,0,255), 4, offset=( x , y ))
                     offset = 10 
@@ -152,7 +154,7 @@ def find_poop(image, brightness = 50):
                     dx_max_full = x + dx_max
                     dy_max_full = y + dy_max
                     cv2.rectangle(image, (dx_min_full, dy_min_full), (dx_max_full, dy_max_full), (0, 0, 255), 1)
-    return image
+    return image, detected
 async def websocket_camera_movement_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
@@ -175,10 +177,10 @@ async def websocket_poop_handler(websocket):
         if data.get("pet", None) == 'shadow':
             img = picam2_dog_monitor.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = find_poop(img, shadow_brightness)
+            img, detected = find_poop(img, shadow_brightness)
             _, jpeg = cv2.imencode('.jpg', img)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
-            response = json.dumps({"pet": "shadow", "image": img_base64})
+            response = json.dumps({"pet": "shadow", "image": img_base64, "detected": detected})
             await websocket.send(response)
         if data.get("pet", None) == 'habichuela':
             img = picam2_cat_monitor.capture_array()
@@ -186,7 +188,7 @@ async def websocket_poop_handler(websocket):
             img = find_poop(img, habichuela_brightness)
             _, jpeg = cv2.imencode('.jpg', img)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
-            response = json.dumps({"pet": "habichuela", "image": img_base64})
+            response = json.dumps({"pet": "habichuela", "image": img_base64, "detected": detected})
             await websocket.send(response)
         if data.get("slider", None) == 'shadow':
             shadow_brightness = int(data.get('value', 50))

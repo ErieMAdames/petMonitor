@@ -103,8 +103,8 @@
         height: 482px;
         width: 642px;
     }
-    .shadow-poop-capture-container p,
-    .habichuela-poop-capture-container p {
+    .shadow-poop-capture-container .label,
+    .habichuela-poop-capture-container .label {
         position: absolute;
         top: 0;
         left: 50%;
@@ -135,14 +135,16 @@
         </div>
         <div class="poop-capture-container">
             <div class="shadow-poop-capture-container">
-                <p>Shadow's Pad</p>
+                <p class="label">Shadow's Pad</p>
                 <img src="" class="shadow-poop-capture"/>
                 <input type="range" min="1" max="100" value="50" class="slider" id="shadow-slider">
+                <p class="detected">POOP DETECTED, CHANGE THE PAD</p>
             </div>
             <div class="habichuela-poop-capture-container">
-                <p>Habichuela's litter box</p>
+                <p class="label">Habichuela's litter box</p>
                 <img src="" class="habichuela-poop-capture"/>
                 <input type="range" min="1" max="100" value="50" class="slider" id="habichuela-slider">
+                <p class="detected">POOP DETECTED, POUR SOME BAKING SODA</p>
             </div>
         </div>
     </main>
