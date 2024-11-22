@@ -196,7 +196,7 @@ async def websocket_poop_handler(websocket):
             shadow_brightness = int(data.get('value', 50))
         if data.get("slider", None) == 'habichuela':
             habichuela_brightness = int(data.get('value', 50))
-        if data.get("water_level", None) == 'water':
+        if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
             response = json.dumps({"water_level": water_level})
             await websocket.send(response)
