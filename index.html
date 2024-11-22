@@ -121,7 +121,7 @@
     .habichuela-poop-capture-container .detected {
         position: absolute;
         width: fit-content;
-        bottom: 0;
+        bottom: 5%;
         left: 25%;
         z-index: 999;
         background: red;
@@ -129,6 +129,12 @@
         color: white;
         padding: 10px;
         border-radius: 10px;
+        animation: blinker 1s linear infinite;
+    }
+    @keyframes blinker {
+        50% {
+            opacity: 0;
+        }
     }
     .slider {
         transform: rotate(-90deg);
