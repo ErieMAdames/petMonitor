@@ -14,9 +14,9 @@
         ws_images.onopen = () => console.log("WebSocket for Shadow & Habichuela connection established");
         ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
         const shadowPoopCapture = document.querySelector('.shadow-poop-capture');
-        const shadowPoopDetectedWarning = document.querySelector('.shadow-poop-capture-container');
+        const shadowPoopDetectedWarning = document.querySelector('.shadow-poop-capture-container .detected');
         const habichuelaPoopCapture = document.querySelector('.habichuela-poop-capture');
-        const habichuelaPoopDetectedWarning = document.querySelector('.habichuela-poop-capture-container');
+        const habichuelaPoopDetectedWarning = document.querySelector('.habichuela-poop-capture-container .detected');
         ws_images.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.image && data.pet) {
@@ -39,7 +39,7 @@
                     if (data.detected) {
                         habichuelaPoopDetectedWarning.style.visibility = 'visible';
                     } else {
-                        shadowPoopDetectedWarning.style.visibility = 'hidden';
+                        habichuelaPoopDetectedWarning.style.visibility = 'hidden';
                     }
                 }
             }
