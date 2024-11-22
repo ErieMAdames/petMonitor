@@ -168,12 +168,18 @@ async def websocket_camera_movement_handler(websocket):
 async def websocket_poop_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
-        if data.get("dog", None) is not None:
+        if data.get("pet", None) == 'shadow':
             img = picam2_dog_monitor.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = find_poop(img)
             _, jpeg = cv2.imencode('.jpg', img)
             await websocket.send(jpeg.tobytes())
+        if data.get("pet", None) == 'habichuela':
+            img = picam2_dog_monitor.capture_array()
+            img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+            img = find_poop(img)
+            _, jpeg = cv2.imencode('.jpg', img)
+            await websocket.send({'image':jpeg.tobytes()})
 
 
 async def start_websocket_server():

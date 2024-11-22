@@ -2,56 +2,58 @@
 <head>
 <title>Video Stream</title>
 <script>
-let ws;
-let ws_images;
+    let ws;
+    let ws_images;
 
-function initWebSocket() {
-    ws = new WebSocket('ws://' + window.location.hostname + ':8765/ws');
-    ws_images = new WebSocket('ws://' + window.location.hostname + ':8744/ws');
-    ws_images.binaryType = "arraybuffer";
-    ws.onopen = () => console.log("WebSocket connection established");
-    ws.onclose = () => console.log("WebSocket connection closed");
-    ws_images.onopen = () => console.log("WebSocket for Shadow & Habichuela connection established");
-    ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
-    const poopCapture = document.querySelector('.poop-capture');
-    ws_images.onmessage = (event) => {
-        if (event.data instanceof ArrayBuffer) {
-            const blob = new Blob([event.data], { type: "image/jpeg" });
-            const imageUrl = URL.createObjectURL(blob);
-            poopCapture.src = imageUrl;
+    function initWebSocket() {
+        ws = new WebSocket('ws://' + window.location.hostname + ':8765/ws');
+        ws_images = new WebSocket('ws://' + window.location.hostname + ':8744/ws');
+        ws_images.binaryType = "arraybuffer";
+        ws.onopen = () => console.log("WebSocket connection established");
+        ws.onclose = () => console.log("WebSocket connection closed");
+        ws_images.onopen = () => console.log("WebSocket for Shadow & Habichuela connection established");
+        ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
+        const shadowPoopCapture = document.querySelector('.shadow-poop-capture');
+        ws_images.onmessage = (event) => {
+            if (event.data instanceof ArrayBuffer) {
+                const blob = new Blob([event.data.image], { type: "image/jpeg" });
+                const imageUrl = URL.createObjectURL(blob);
+                shadowPoopCapture.src = imageUrl;
+            }
+        };
+        setInterval(
+            function() {
+                ws_images.send(JSON.stringify({ pet: "shadow" }));
+            },
+            500
+        )
+    }
+    function handleKey(event) {
+        const key = event.key.toLowerCase();
+        if (['w', 'a', 's', 'd'].includes(key)) {
+            ws.send(JSON.stringify({ key: key, action: event.type }));
         }
-    };
-    setInterval(
-        function() {
-            ws_images.send(JSON.stringify({ dog: "dog" }));
-        },
-        500
-    )
-}
-
-function handleKey(event) {
-    const key = event.key.toLowerCase();
-    if (['w', 'a', 's', 'd'].includes(key)) {
-        ws.send(JSON.stringify({ key: key, action: event.type }));
     }
 
-    // if (['p'].includes(key)) {
-    //     ws_images.send(JSON.stringify({ dog: "dog" }));
-    // }
-}
-
-window.onload = () => {
-    initWebSocket();
-    document.addEventListener('keydown', handleKey);
-    document.addEventListener('keyup', handleKey);
-};
-
+    window.onload = () => {
+        initWebSocket();
+        document.addEventListener('keydown', handleKey);
+        document.addEventListener('keyup', handleKey);
+    };
 </script>
+<style>
+    .main-cam {
+        transform: rotate(180deg);
+    }
+</style>
 </head>
 <body>
-<h1>Picamera2 MJPEG Streaming Demo</h1>
-<img src="stream.mjpg" width="1280" height="960" style="transform: rotate(180deg);"/>
-<h1>Poop capture</h1>
-<img src="" width="1280" height="960" class="poop-capture"/>
+    <div class="main-cam-container">
+        <img src="stream.mjpg" class="main-cam"/>
+    </div>
+    <div>
+        <img src="" class="shadow-poop-capture"/>
+        <img src="" class="habichuela-poop-capture"/>
+    </div>
 </body>
 </html>
