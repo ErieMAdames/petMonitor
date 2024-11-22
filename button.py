@@ -1,44 +1,30 @@
-import pigpio
-from time import sleep
+from gpiozero import Button
+from signal import pause
 
-# Initialize pigpio
-pi = pigpio.pi()
-
-# Define GPIO pin (e.g., GPIO 17)
+# Define the GPIO pin for the button (e.g., GPIO 17)
 BUTTON_PIN = 17
 
-# Set the pin mode to input with pull-up resistor
-pi.set_mode(BUTTON_PIN, pigpio.INPUT)
-pi.set_pull_up_down(BUTTON_PIN, pigpio.PUD_UP)
+# Initialize the button
+button = Button(BUTTON_PIN, pull_up=True)
 
-# Variables to track button state
-button_pressed = False
+# Variables to track button presses
 counter = 0
 
+# Define button press actions
 def on_button_press():
     global counter
-    print("Button pressed " + str(counter) + " times")
+    print(f"Button pressed {counter} times")
     counter += 1
 
 def on_button_release():
     print("Button released!")
 
-# Callback for button state changes
-def button_callback(gpio, level, tick):
-    if level == 0:  # Button pressed
-        on_button_press()
-    elif level == 1:  # Button released
-        on_button_release()
+# Link the button actions
+button.when_pressed = on_button_press
+button.when_released = on_button_release
 
-# Set up a callback on the BUTTON_PIN
-pi.callback(BUTTON_PIN, pigpio.EITHER_EDGE, button_callback)
-
+# Keep the program running
 try:
-    while True:
-        sleep(0.1)  # Keep the program running to listen for button events
-
+    pause()
 except KeyboardInterrupt:
     print("Program stopped by user")
-
-finally:
-    pi.stop()  # Clean up pigpio resources
