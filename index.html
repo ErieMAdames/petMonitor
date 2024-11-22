@@ -102,7 +102,7 @@
         font-weight: 100;
         font-style: normal;
     }
-    main {
+    .main-content {
         display: flex;
         justify-content: space-around;
     }
@@ -174,21 +174,23 @@
         <h1>Pet Monitor</h1>
     </header>
     <main>
-        <div class="main-cam-container">
-            <img src="stream.mjpg" class="main-cam"/>
-        </div>
-        <div class="poop-capture-container">
-            <div class="shadow-poop-capture-container">
-                <p class="label">Shadow's Pad</p>
-                <img src="" class="shadow-poop-capture"/>
-                <input type="range" min="1" max="100" value="50" class="slider" id="shadow-slider">
-                <p class="detected">POOP DETECTED, CHANGE THE PAD</p>
+        <div class="main-content">
+            <div class="main-cam-container">
+                <img src="stream.mjpg" class="main-cam"/>
             </div>
-            <div class="habichuela-poop-capture-container">
-                <p class="label">Habichuela's litter box</p>
-                <img src="" class="habichuela-poop-capture"/>
-                <input type="range" min="1" max="100" value="50" class="slider" id="habichuela-slider">
-                <p class="detected">POOP DETECTED, POUR SOME BAKING SODA</p>
+            <div class="poop-capture-container">
+                <div class="shadow-poop-capture-container">
+                    <p class="label">Shadow's Pad</p>
+                    <img src="" class="shadow-poop-capture"/>
+                    <input type="range" min="1" max="100" value="50" class="slider" id="shadow-slider">
+                    <p class="detected">POOP DETECTED, CHANGE THE PAD</p>
+                </div>
+                <div class="habichuela-poop-capture-container">
+                    <p class="label">Habichuela's litter box</p>
+                    <img src="" class="habichuela-poop-capture"/>
+                    <input type="range" min="1" max="100" value="50" class="slider" id="habichuela-slider">
+                    <p class="detected">POOP DETECTED, POUR SOME BAKING SODA</p>
+                </div>
             </div>
         </div>
         <div class="water-level">
