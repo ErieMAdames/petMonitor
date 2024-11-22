@@ -1,7 +1,7 @@
 class Servo():
     PERIOD = 4095
     PRESCALER = 10
-    MAX_PW = 1000
+    MAX_PW = 2500
     MIN_PW = 500
     FREQ = 50
     ARR = 4095
