@@ -11,10 +11,8 @@ counter = 0
 def on_button_press():
     global button_pressed
     global counter
-    if not button_pressed:  # Only trigger if the button hasn't been pressed yet
-        print("Button pressed " + str(counter) + ' times')
-        button_pressed = True  # Set flag to prevent multiple presses
-        counter += 1
+    print("Button pressed " + str(counter) + ' times')
+    counter += 1
 # Define a function to be called when the button is released
 def on_button_release():
     global button_pressed
