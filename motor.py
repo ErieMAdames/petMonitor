@@ -26,6 +26,7 @@ class Motor():
 m = Motor(PWM("P13"), Pin("D4"))
 while True:
     time_ = int(input())
-    m.set_power(10)
+    power = int(input())
+    m.set_power(power)
     time.sleep(time_)
     m.set_power(0)
