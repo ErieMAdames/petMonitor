@@ -1,16 +1,36 @@
-import Adafruit_ADS1x15
+#!/usr/bin/env python3
+from i2c import I2C
 
-# Initialize the ADC
-adc = Adafruit_ADS1x15.ADS1115()
+class ADC(I2C):
+    ADDR=0x14
+    def __init__(self, chn):
+        super().__init__()
+        if isinstance(chn, str):
+            if chn.startswith("A"):
+                chn = int(chn[1:])
+            else:
+                raise ValueError("ADC channel should be between [A0, A7], not {0}".format(chn))
+        if chn < 0 or chn > 7:          
+            self._error('Incorrect channel range')
+        chn = 7 - chn
+        self.chn = chn | 0x10          
+        self.reg = 0x40 + self.chn
+        
+    def read(self):                     
+        self.send([self.chn, 0, 0], self.ADDR)
+        h = self.recv(1, self.ADDR)
+        value_h = h[0]
+        l = self.recv(1, self.ADDR)
+        value_l = l[0]
+        value = (value_h << 8) + value_l
+        return value
 
-# Gain configuration (1x gain for ±4.096V range)
-GAIN = 1
+def test():
+    import time
+    adc = ADC(0)
+    while True:
+        print(adc.read())
+        time.sleep(1)
 
-# Read ADC values (A0, A1, A2, A3)
-value_a0 = adc.read_adc(0, gain=GAIN)
-value_a1 = 0#adc.read_adc(1, gain=GAIN)
-value_a2 = 0#adc.read_adc(2, gain=GAIN)
-value_a3 = 0#adc.read_adc(3, gain=GAIN)
-
-# Print the results
-print("A0: {}, A1: {}, A2: {}, A3: {}".format(value_a0, value_a1, value_a2, value_a3))
+if __name__ == '__main__':
+    test()
