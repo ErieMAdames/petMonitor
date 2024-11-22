@@ -128,7 +128,7 @@ def find_poop(image, brightness = 50):
     for contour in sorted_contours:
         if cv2.contourArea(contour) > 100:
             x, y, w, h = cv2.boundingRect(contour)
-            cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
+            # cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.drawContours(image, [contour], 0, (0,255,0), 4)
             mask = np.zeros_like(gray)
             cv2.drawContours(mask, [contour], -1, 255, thickness=cv2.FILLED)
@@ -151,7 +151,7 @@ def find_poop(image, brightness = 50):
                     dy_min_full = y + dy_min
                     dx_max_full = x + dx_max
                     dy_max_full = y + dy_max
-                    cv2.rectangle(image, (dx_min_full, dy_min_full), (dx_max_full, dy_max_full), (0, 0, 255), 2)
+                    cv2.rectangle(image, (dx_min_full, dy_min_full), (dx_max_full, dy_max_full), (0, 0, 255), .5)
     return image
 async def websocket_camera_movement_handler(websocket):
     async for message in websocket:
