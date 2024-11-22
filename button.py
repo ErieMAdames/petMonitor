@@ -6,14 +6,15 @@ button = Button(17)
 
 # Define a flag to track button state
 button_pressed = False
-
+counter = 0
 # Define a function to be called when the button is pressed
 def on_button_press():
     global button_pressed
+    global counter
     if not button_pressed:  # Only trigger if the button hasn't been pressed yet
-        print("Button pressed!")
+        print("Button pressed " + str(counter) + ' times')
         button_pressed = True  # Set flag to prevent multiple presses
-
+        counter += 1
 # Define a function to be called when the button is released
 def on_button_release():
     global button_pressed
