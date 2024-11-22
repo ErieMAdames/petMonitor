@@ -31,7 +31,7 @@ class ADC(I2C):
         print(l)
         print(value_l << 8)
         print('value_ll : ' + str(value_ll))
-        print(h)
+        print(ll)
         print(value_ll << 8)
         value = (value_h << 8) + value_l
         return value
