@@ -39,7 +39,13 @@
                 ws_images.send(JSON.stringify({ pet: "habichuela" }));
             },
             500
-        )
+        );
+        document.querySelectorAll('#shadow-slider').oninput = function() {
+            console.log(this.value);
+        }
+        document.querySelectorAll('#habichuela-slider').oninput = function() {
+            console.log(this.value);
+        }
     }
     function handleKey(event) {
         const key = event.key.toLowerCase();
@@ -120,10 +126,12 @@
             <div class="shadow-poop-capture-container">
                 <p>Shadow's Pad</p>
                 <img src="" class="shadow-poop-capture"/>
+                <input type="range" min="1" max="100" value="50" class="slider" id="shadow-slider">
             </div>
             <div class="habichuela-poop-capture-container">
                 <p>Habichuela's litter box</p>
                 <img src="" class="habichuela-poop-capture"/>
+                <input type="range" min="1" max="100" value="50" class="slider" id="habichuela-slider">
             </div>
         </div>
     </main>

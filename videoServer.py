@@ -30,7 +30,8 @@ servo1 = Servo(PWM("P1"))
 
 servo0.set_angle(servo0_angle_offset)
 servo1.set_angle(servo1_angle_offset)
-
+shadow_brightness = 50
+habichuela_brightness = 50
 def up():
     global servo1_angle_offset
     global servo1_angle
@@ -118,8 +119,8 @@ def increase_brightness(img, value=30):
     final_hsv = cv2.merge((h, s, v))
     img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
     return img
-def find_poop(image):
-    image = increase_brightness(image, 50)
+def find_poop(image, brightness = 50):
+    image = increase_brightness(image, brightness)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, thresholded = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
     contours, _ = cv2.findContours(thresholded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
