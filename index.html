@@ -43,11 +43,20 @@
                     }
                 }
             }
+            if (data.water_level) {
+                console.log(data.water_level)
+            }
         };
         setInterval(
             function() {
                 ws_images.send(JSON.stringify({ pet: "shadow" }));
                 ws_images.send(JSON.stringify({ pet: "habichuela" }));
+            },
+            500
+        );
+        setInterval(
+            function() {
+                ws_images.send(JSON.stringify({ water_level: "water_level" }));
             },
             500
         );

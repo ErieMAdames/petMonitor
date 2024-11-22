@@ -10,6 +10,7 @@ import cv2
 import numpy as np
 from servo import Servo
 from pwm import PWM
+from adc import ADC
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
@@ -27,6 +28,7 @@ servo0_angle = 0
 servo1_angle = 0 
 servo0 = Servo(PWM("P0"))
 servo1 = Servo(PWM("P1"))
+water_monitor = ADC(0)
 
 servo0.set_angle(servo0_angle_offset)
 servo1.set_angle(servo1_angle_offset)
@@ -194,6 +196,10 @@ async def websocket_poop_handler(websocket):
             shadow_brightness = int(data.get('value', 50))
         if data.get("slider", None) == 'habichuela':
             habichuela_brightness = int(data.get('value', 50))
+        if data.get("water_level", None) == 'water':
+            water_level = water_monitor.read()
+            response = json.dumps({"water_level": water_level})
+            await websocket.send(response)
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
         await asyncio.Future()  # Run forever
