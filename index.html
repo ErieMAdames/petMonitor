@@ -55,7 +55,7 @@
                 }
             }
             if (data.food_level) {
-                if (data.food_level < 1000) {
+                if (data.food_level > 20) {
                     foodLevelMessage.innerHTML = 'Food levels low. Refill food now';
                     foodLevelMessage.classList.add('refill');
                 } else {
@@ -192,7 +192,8 @@
         top: 50%;
         right: -6%;
     }
-    .water-level-message {
+    .water-level-message,
+    .food-level-message {
         width: fit-content;
         font-size: 32px;
         padding: 10px;
