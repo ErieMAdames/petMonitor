@@ -36,6 +36,7 @@
         setInterval(
             function() {
                 ws_images.send(JSON.stringify({ pet: "shadow" }));
+                ws_images.send(JSON.stringify({ pet: "habichuela" }));
             },
             500
         )
