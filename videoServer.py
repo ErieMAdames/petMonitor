@@ -15,6 +15,7 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 import asyncio
 import websockets
+import base64
 
 PAGE = ''
 with open('index.html', 'r') as f:
@@ -169,18 +170,21 @@ async def websocket_poop_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
         if data.get("pet", None) == 'shadow':
-            print('shadow')
             img = picam2_dog_monitor.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = find_poop(img)
             _, jpeg = cv2.imencode('.jpg', img)
-            await websocket.send(json.dumps({'image':jpeg.tobytes()}))
+            img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
+            response = json.dumps({"pet": "shadow", "image": img_base64})
+            await websocket.send(response)
         if data.get("pet", None) == 'habichuela':
             img = picam2_dog_monitor.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = find_poop(img)
             _, jpeg = cv2.imencode('.jpg', img)
-            await websocket.send({'image':jpeg.tobytes()})
+            img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
+            response = json.dumps({"pet": "habichuela", "image": img_base64})
+            await websocket.send(response)
 
 
 async def start_websocket_server():
