@@ -55,18 +55,36 @@
     };
 </script>
 <style>
+    body {
+        font-family: sans-serif;
+    }
+    main {
+        display: flex;
+        justify-content: space-around;
+    }
     .main-cam {
         transform: rotate(180deg);
+    }
+    .poop-capture-container {
+        height: fit-content;
+        width: fit-content;
+        display: flex;
+        flex-direction: column;
     }
 </style>
 </head>
 <body>
-    <div class="main-cam-container">
-        <img src="stream.mjpg" class="main-cam"/>
-    </div>
-    <div>
-        <img src="" class="shadow-poop-capture"/>
-        <img src="" class="habichuela-poop-capture"/>
-    </div>
+    <header>
+        <h1>Pet Monitor</h1>
+    </header>
+    <main>
+        <div class="main-cam-container">
+            <img src="stream.mjpg" class="main-cam"/>
+        </div>
+        <div class="poop-capture-container">
+            <img src="" class="shadow-poop-capture"/>
+            <img src="" class="habichuela-poop-capture"/>
+        </div>
+    </main>
 </body>
 </html>
