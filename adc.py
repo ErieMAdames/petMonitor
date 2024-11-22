@@ -3,7 +3,7 @@ from i2c import I2C
 
 class ADC(I2C):
     ADDR = 0x14
-    MAX_ADC_VALUE = 4095  # Assuming a 12-bit ADC (adjust if necessary)
+    MAX_ADC_VALUE = 1024  # Assuming a 12-bit ADC (adjust if necessary)
     MIN_ADC_VALUE = 0     # Minimum ADC value
 
     def __init__(self, chn):
