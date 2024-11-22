@@ -28,3 +28,4 @@ while True:
     time_ = int(input())
     m.set_power(10)
     time.sleep(time_)
+    m.set_power(0)
