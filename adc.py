@@ -23,7 +23,7 @@ class ADC(I2C):
         l = self.recv(1, self.ADDR)
         value_l = l[0]
         ll = self.recv(1, self.ADDR)
-        value_ll = l[0]
+        value_ll = ll[0]
         print('value_h : ' + str(value_h))
         print(h)
         print('value_l : ' + str(value_l))
