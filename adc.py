@@ -22,17 +22,11 @@ class ADC(I2C):
         value_h = h[0]
         l = self.recv(1, self.ADDR)
         value_l = l[0]
-        ll = self.recv(1, self.ADDR)
-        value_ll = ll[0]
         print('value_h : ' + str(value_h))
-        print(h)
         print(value_h << 8)
+        print(int(h))
         print('value_l : ' + str(value_l))
-        print(l)
-        print(value_l << 8)
-        print('value_ll : ' + str(value_ll))
-        print(ll)
-        print(value_ll << 8)
+        print(int(l))
         value = (value_h << 8) + value_l
         return value
 
