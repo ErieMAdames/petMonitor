@@ -17,6 +17,7 @@ def on_button_press():
 # Define a function to be called when the button is released
 def on_button_release():
     global button_pressed
+    print("Button released!")
     button_pressed = False  # Reset flag when button is released
 
 # Attach the functions to the button press and release events
