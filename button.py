@@ -2,7 +2,7 @@ from gpiozero import Button
 from time import sleep
 
 # Set up the button with GPIO pin (e.g., GPIO 17)
-button = Button(17)
+button = Button(17, bounce_time=0.2)
 
 # Define a flag to track button state
 button_pressed = False
