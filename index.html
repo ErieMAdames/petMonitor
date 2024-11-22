@@ -47,8 +47,10 @@
             if (data.water_level) {
                 if (data.water_level < 1000) {
                     waterLevelMessage.innerHTML = 'Water levels low. Refill water now';
+                    waterLevelMessage.classList.add('refill');
                 } else {
                     waterLevelMessage.innerHTML = 'Water levels normal';
+                    waterLevelMessage.classList.remove('refill');
                 }
             }
         };
@@ -104,7 +106,9 @@
     }
     .main-content {
         display: flex;
-        justify-content: space-around;
+        justify-content: space-between;
+        width: 80vw;
+        margin: 0 auto;
     }
     img {
         border: 1px solid gray;
@@ -161,11 +165,28 @@
             opacity: 0;
         }
     }
+    @keyframes backgroundFlash {
+        100% {
+            background-color: red;
+        }
+    }
     .slider {
         transform: rotate(-90deg);
         position: absolute;
         top: 50%;
         right: -6%;
+    }
+    .water-level-message {
+        width: fit-content;
+        font-size: 32px;
+    }
+    .water-level-message.refill {
+        animation: backgroundFlash 2s linear infinite;
+    }
+    .water-level-container {
+        width: 80vw;
+        margin: 0 auto;
+        margin-top: 80px;
     }
 </style>
 </head>
@@ -193,7 +214,7 @@
                 </div>
             </div>
         </div>
-        <div class="water-level">
+        <div class="water-level-container">
             <p class="water-level-message">
                 Water level normal
             </p>
