@@ -173,7 +173,7 @@ async def websocket_poop_handler(websocket):
         if data.get("pet", None) == 'shadow':
             img = picam2_dog_monitor.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = find_poop(img)
+            img = find_poop(img, shadow_brightness)
             _, jpeg = cv2.imencode('.jpg', img)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
             response = json.dumps({"pet": "shadow", "image": img_base64})
@@ -181,13 +181,17 @@ async def websocket_poop_handler(websocket):
         if data.get("pet", None) == 'habichuela':
             img = picam2_cat_monitor.capture_array()
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img = find_poop(img)
+            img = find_poop(img, habichuela_brightness)
             _, jpeg = cv2.imencode('.jpg', img)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
             response = json.dumps({"pet": "habichuela", "image": img_base64})
             await websocket.send(response)
-
-
+        if data.get("slider", None) == 'shadow':
+            global shadow_brightness
+            shadow_brightness = int(data.get('value', 50))
+        if data.get("slider", None) == 'habichuela':
+            global habichuela_brightness
+            habichuela_brightness = int(data.get('value', 50))
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
         await asyncio.Future()  # Run forever

@@ -41,10 +41,10 @@
             500
         );
         document.querySelector('#shadow-slider').oninput = function() {
-            console.log(this.value);
+            ws_images.send(JSON.stringify({ slider: "shadow", value: this.value }));
         }
         document.querySelector('#habichuela-slider').oninput = function() {
-            console.log(this.value);
+            ws_images.send(JSON.stringify({ slider: "habichuela", value: this.value }));
         }
     }
     function handleKey(event) {
