@@ -1,38 +1,40 @@
-"""
-This Raspberry Pi code was developed by newbiely.com
-This Raspberry Pi code is made available for public use without any restriction
-For comprehensive instructions and wiring diagrams, please visit:
-https://newbiely.com/tutorials/raspberry-pi/raspberry-pi-water-sensor
-"""
+#!/usr/bin/env python3
+from i2c import I2C
 
+class ADC(I2C):
+    ADDR=0x14
+    def __init__(self, chn):
+        super().__init__()
+        if isinstance(chn, str):
+            if chn.startswith("A"):
+                chn = int(chn[1:])
+            else:
+                raise ValueError("ADC channel should be between [A0, A7], not {0}".format(chn))
+        if chn < 0 or chn > 7:          
+            self._error('Incorrect channel range')
+        chn = 7 - chn
+        self.chn = chn | 0x10          
+        self.reg = 0x40 + self.chn
+        
+    def read(self):                     
+        self.send([self.chn, 0, 0], self.ADDR)
+        h = self.recv(1, self.ADDR)
+        value_h = h[0]
+        l = self.recv(1, self.ADDR)
+        value_l = l[0]
+        print('value_h : ' + str(value_h))
+        print(h)
+        print('value_l : ' + str(value_l))
+        print(l)
+        value = (value_h << 8) + value_l
+        return value
 
-import time
-import Adafruit_ADS1x15
-
-# Create an ADS1115 ADC instance
-ADC = Adafruit_ADS1x15.ADS1115()
-
-# Specify the ADC channel (0-3) based on your connection
-ADC_CHANNEL = 3 # A3 of ADS1115 module
-
-# Set the gain (input voltage range) for your application
-GAIN = 1  # Gain of 1 corresponds to +/-4.096V
-
-# Define the conversion factor for water level calculation
-MIN_ADC_VALUE = 0  # Replace with the minimum ADC value for your sensor
-MAX_ADC_VALUE = 32767  # Replace with the maximum ADC value for your sensor
-
-try:
+def test():
+    import time
+    adc = ADC(0)
     while True:
-        # Read the raw ADC value
-        adc_value = ADC.read_adc(ADC_CHANNEL, gain=GAIN)
+        print(adc.read())
+        time.sleep(1)
 
-        # Convert the raw ADC value to a water level percentage
-        water_level = (adc_value - MIN_ADC_VALUE) / (MAX_ADC_VALUE - MIN_ADC_VALUE) * 100
-
-        print(f"ADC Value: {adc_value} | Water Level: {water_level:.2f}%")
-
-        time.sleep(1)  # Wait for a second before the next reading
-
-except KeyboardInterrupt:
-    print("\nScript terminated by user.")
+if __name__ == '__main__':
+    test()
