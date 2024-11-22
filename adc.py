@@ -29,7 +29,7 @@ class ADC(I2C):
         for ll in l:
             print(ll)
         print('=========')
-        value = (value_h << 8) + value_l
+        value = (value_l << 8) + value_h
         return value
 
 def test():
