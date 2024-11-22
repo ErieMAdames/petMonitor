@@ -17,6 +17,7 @@
         const shadowPoopDetectedWarning = document.querySelector('.shadow-poop-capture-container .detected');
         const habichuelaPoopCapture = document.querySelector('.habichuela-poop-capture');
         const habichuelaPoopDetectedWarning = document.querySelector('.habichuela-poop-capture-container .detected');
+        const waterLevelMessage = document.querySelector('.water-level-message');
         ws_images.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.image && data.pet) {
@@ -44,7 +45,11 @@
                 }
             }
             if (data.water_level) {
-                console.log(data.water_level)
+                if (data.water_level < 1000) {
+                    waterLevelMessage.innerHTML = 'Water levels low. Refill water now';
+                } else {
+                    waterLevelMessage.innerHTML = 'Water levels normal';
+                }
             }
         };
         setInterval(
@@ -185,6 +190,11 @@
                 <input type="range" min="1" max="100" value="50" class="slider" id="habichuela-slider">
                 <p class="detected">POOP DETECTED, POUR SOME BAKING SODA</p>
             </div>
+        </div>
+        <div class="water-level">
+            <p class="water-level-message">
+                Water levels normal
+            </p>
         </div>
     </main>
 </body>
