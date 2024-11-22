@@ -23,12 +23,12 @@ class ADC(I2C):
         l = self.recv(1, self.ADDR)
         value_l = l[0]
         print('value_h : ' + str(value_h))
-        print(value_h << 8)
         for hh in h:
             print(hh)
         print('value_l : ' + str(value_l))
         for ll in l:
             print(ll)
+        print('=========')
         value = (value_h << 8) + value_l
         return value
 
