@@ -117,9 +117,9 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                         for ir in infer_results['yolov6n/yolox_nms_postprocess']:
                             try:
                                 pprint(len(ir))
-                                pprint(ir[0])
-                                pprint(ir[0].shape)
-                                pprint(ir.shape)
+                                # pprint(ir[0])
+                                # pprint(ir[0].shape)
+                                # pprint(ir.shape)
                             except Exception:
                                 continue
                         layer_from_shape: dict = {infer_results[key].shape:key for key in infer_results.keys()}
