@@ -10,10 +10,10 @@ motor = Motor()
 def on_button_press():
     global counter, last_pressed_time
     current_time = time.time()
-    if current_time - last_pressed_time >= 2:
+    if current_time - last_pressed_time >= 1:
         print("Button pressed " + str(counter) + ' times')
         motor.set_power(1)
-        time.sleep(.1)
+        time.sleep(.5)
         motor.set_power(0)
         counter += 1
         last_pressed_time = current_time
