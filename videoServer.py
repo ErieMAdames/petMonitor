@@ -22,7 +22,7 @@ import websockets
 import base64
 import time
 
-button = Button(17)
+button = Button(27)
 counter = 0
 last_pressed_time = 0
 motor = Motor()
