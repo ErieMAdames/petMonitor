@@ -34,8 +34,8 @@ input_vstream_info = network_group.get_input_vstream_infos()[0]
 output_vstream_info = network_group.get_output_vstream_infos()[0]
 print(input_vstream_info)
 print(output_vstream_info)
-context = network_group.create_context()
-print(context)
+# context = network_group.create_context()
+# print(context)
 
 button = Button(16)
 counter = 0
