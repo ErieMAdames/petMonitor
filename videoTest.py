@@ -114,17 +114,17 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             input_data = {input_vstream_info.name: np.expand_dims(np.asarray(resized_img), axis=0).astype(np.float32)}    
                             with network_group.activate(network_group_params):
                                 infer_results = infer_pipeline.infer(input_data)
-                        for ir in infer_results['yolov6n/yolox_nms_postprocess'][0]:
-                            try:
-                                print(len(ir))
-                                pprint(ir.shape)
-                                print(ir)
-                                print('------')
-                                # pprint(ir[0])
-                                # pprint(ir[0].shape)
-                            except Exception as e:
-                                print(e)
-                        layer_from_shape: dict = {infer_results[key].shape:key for key in infer_results.keys()}
+                        # for ir in infer_results['yolov6n/yolox_nms_postprocess'][0]:
+                        #     try:
+                        #         print(len(ir))
+                        #         pprint(ir.shape)
+                        #         print(ir)
+                        #         print('------')
+                        #         # pprint(ir[0])
+                        #         # pprint(ir[0].shape)
+                        #     except Exception as e:
+                        #         print(e)
+                        layer_from_shape: dict = {infer_results[key][0].shape:key for key in infer_results.keys()}
                         
                         pprint(layer_from_shape)
                         # postprocessing info for constructor as recommended in hailo_model_zoo/cfg/base/yolox.yaml
