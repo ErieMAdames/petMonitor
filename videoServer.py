@@ -25,17 +25,10 @@ from hailo_platform import HEF, VDevice
 # Hailo Initialization
 
 vdevice = VDevice()  # Virtual Device
-print(vdevice)
 hef = HEF("/usr/share/hailo-models/yolov6n.hef")  # Replace with your .hef model path
-print(hef)
 network_group = vdevice.configure(hef)[0]
-print(network_group)
 input_vstream_info = network_group.get_input_vstream_infos()[0]
 output_vstream_info = network_group.get_output_vstream_infos()[0]
-print(input_vstream_info)
-print(output_vstream_info)
-# context = network_group.create_context()
-# print(context)
 
 button = Button(16)
 counter = 0
