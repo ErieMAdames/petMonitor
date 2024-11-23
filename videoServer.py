@@ -120,7 +120,6 @@ class StreamingOutput(io.BufferedIOBase):
 
     def write(self, buf):
         with self.condition:
-            print(buf)
             self.frame = buf
             self.condition.notify_all()
 def on_new_sample(sink, data):
@@ -308,8 +307,8 @@ appsink.set_property('emit-signals', True)
 appsink.set_property('sync', False)
 
 # Connect appsink signals
-output_handler = StreamingOutput()
-appsink.connect('new-sample', on_new_sample, output_handler)
+output = StreamingOutput()
+appsink.connect('new-sample', on_new_sample, output)
 
 # Start the pipeline
 pipeline.set_state(Gst.State.PLAYING)
