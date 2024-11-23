@@ -30,9 +30,8 @@ network_group = vdevice.configure(hef)[0]
 network_group.activate()
 
 # Create VStreams for input and output
-vstreams = vdevice.create_vstreams(network_group)
-input_vstream = vstreams[0]
-output_vstream = vstreams[1]
+input_stream_name = network_group.get_input_vstream_infos()[0].name
+output_stream_name = network_group.get_output_vstream_infos()[0].name
 
 def preprocess_frame(frame, input_shape):
     """Resize and normalize the frame for Hailo model input."""
@@ -103,16 +102,13 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     np_frame = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR)
 
                     # Preprocess frame for inference
-                    input_tensor = preprocess_frame(np_frame, input_vstream.shape)
+                    input_tensor = preprocess_frame(np_frame, network_group.get_input_vstream_infos()[0].shape)
 
-                    # Run inference using VStreams
-                    input_vstream.write(input_tensor)
-                    output_tensor = output_vstream.read()
-
+                    # Run inference using the network group
+                    output_data = network_group.infer({input_stream_name: input_tensor})
 
                     # Post-process detections
-                    detections = postprocess_detections(output_tensor, np_frame.shape)
-
+                    detections = postprocess_detections(output_data[output_stream_name], np_frame.shape)
 
                     # Overlay detections
                     processed_frame = overlay_detections(np_frame, detections)
