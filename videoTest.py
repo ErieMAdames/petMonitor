@@ -111,6 +111,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             input_data = {input_vstream_info.name: np.expand_dims(np.asarray(resized_img), axis=0).astype(np.float32)}    
                             with network_group.activate(network_group_params):
                                 infer_results = infer_pipeline.infer(input_data)
+                                print(infer_results)
 
                         # Overlay detections
                         # processed_frame = overlay_detections(np_frame, detections)
@@ -136,7 +137,7 @@ output = StreamingOutput()
 
 # Camera Initialization
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (640, 480)}))
+picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 
 try:
