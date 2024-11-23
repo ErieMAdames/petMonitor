@@ -4,7 +4,7 @@ import time
 class Motor():
     STEP = 10
     DELAY = 0.1
-    def __init__(self, pwm_pin, dir_pin, is_reversed=False):
+    def __init__(self, pwm_pin=PWM("P13"), dir_pin=Pin("D4"), is_reversed=False):
         self.pwm_pin = pwm_pin
         self.dir_pin = dir_pin
         self._is_reversed = is_reversed
@@ -23,10 +23,10 @@ class Motor():
         self.dir_pin.value(direction)
         self.pwm_pin.pulse_width_percent(power)
 
-m = Motor(PWM("P13"), Pin("D4"))
-while True:
-    time_ = int(input())
-    power = int(input())
-    m.set_power(power)
-    time.sleep(time_)
-    m.set_power(0)
+# m = Motor(PWM("P13"), Pin("D4"))
+# while True:
+#     time_ = int(input())
+#     power = int(input())
+#     m.set_power(power)
+#     time.sleep(time_)
+#     m.set_power(0)
