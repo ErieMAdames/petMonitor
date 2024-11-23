@@ -13,7 +13,7 @@ def on_button_press():
     if current_time - last_pressed_time >= 1:
         print("Button pressed " + str(counter) + ' times')
         motor.set_power(1)
-        time.sleep(.5)
+        time.sleep(.25)
         motor.set_power(0)
         counter += 1
         last_pressed_time = current_time
