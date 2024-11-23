@@ -286,14 +286,7 @@ def run_websocket_server_in_thread(coroutine):
     thread.daemon = True
     thread.start()
     return thread
-def run_gstreamer_in_thread():
-    def run_loop():
-        loop = GLib.MainLoop()
-        loop.run()
-    thread = Thread(target=run_loop)
-    thread.daemon = True
-    thread.start()
-    return thread
+
 
 # picam2 = Picamera2()
 # picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
@@ -329,8 +322,10 @@ try:
     http_server_thread = Thread(target=server.serve_forever)
     http_server_thread.daemon = True
     http_server_thread.start()
-    run_gstreamer_in_thread()
+
     run_websocket_server_in_thread(start_websocket_server())
+    loop = GLib.MainLoop()
+    loop.run()
     asyncio.run(start_websocket_server_poop_monitor())
 finally:
     # picam2.stop_recording()
