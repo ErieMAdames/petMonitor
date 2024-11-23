@@ -9,6 +9,7 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from hailo_platform import (HEF, Device, VDevice, HailoStreamInterface, InferVStreams, ConfigureParams,
     InputVStreamParams, OutputVStreamParams, InputVStreams, OutputVStreams, FormatType)
+from hailo_platform.pyhailort._pyhailort import FormatOrder
 from yolo import YoloPostProc
 import logging
 from pprint import pprint
@@ -26,8 +27,7 @@ PAGE = """\
 """
 
 # Hailo Initialization
-# hef = HEF("/usr/share/hailo-models/yolov6n.hef")  # Replace with your .hef model path
-hef = HEF("resources/yolox_s_leaky.hef")  # Replace with your .hef model path
+hef = HEF("/usr/share/hailo-models/yolov6n.hef")  # Replace with your .hef model path
 
 INPUT_RES_H = 640
 INPUT_RES_W = 640
@@ -101,7 +101,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     input_vstream_info = hef.get_input_vstream_infos()[0]
                     output_vstream_info = hef.get_output_vstream_infos()[0]
                     input_vstreams_params = InputVStreamParams.make_from_network_group(network_group, quantized=False, format_type=FormatType.FLOAT32)
-                    output_vstreams_params = OutputVStreamParams.make_from_network_group(network_group, quantized=False, format_type=FormatType.FLOAT32)
+                    output_vstreams_params = OutputVStreamParams.make_from_network_group(network_group, quantized=False, format_type=FormatType.FLOAT32, output_order=FormatOrder.HAILO_NMS_WITH_BYTE_MASK)
                     height, width, channels = hef.get_input_vstream_infos()[0].shape
                     while True:
                         with output.condition:
@@ -115,16 +115,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             input_data = {input_vstream_info.name: np.expand_dims(np.asarray(resized_img), axis=0).astype(np.float32)}    
                             with network_group.activate(network_group_params):
                                 infer_results = infer_pipeline.infer(input_data)
-                        # for ir in infer_results['yolov6n/yolox_nms_postprocess'][0]:
-                        #     try:
-                        #         print(len(ir))
-                        #         pprint(ir.shape)
-                        #         print(ir)
-                        #         print('------')
-                        #         # pprint(ir[0])
-                        #         # pprint(ir[0].shape)
-                        #     except Exception as e:
-                        #         print(e)
+
                         layer_from_shape: dict = {infer_results[key].shape:key for key in infer_results.keys()}
                         
                         pprint(layer_from_shape)
