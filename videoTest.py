@@ -14,8 +14,9 @@ def extract_detections(hailo_output, w, h, class_names, threshold=0.5):
     """Extract detections from the HailoRT-postprocess output."""
     results = []
     for class_id, detections in enumerate(hailo_output):
-        for detection in detections:
-            if len(detection) and len(detection[0]) > 0:
+        for detection_ in detections:
+            if len(detection_) and len(detection_[0]) > 0:
+                detection = detection_[0]
                 score = detection[4]
                 if score >= threshold:
                     y0, x0, y1, x1 = detection[:4]
