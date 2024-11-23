@@ -298,7 +298,7 @@ Gst.init(None)
 # Create pipeline
 pipeline = Gst.parse_launch(
     "libcamerasrc name=source ! video/x-raw, format=RGB, width=1536, height=864 ! "
-    "videoconvert ! appsink name=custom_sink"
+    "videoconvert ! jpegenc ! appsink name=custom_sink"
 )
 
 # Get the appsink element
