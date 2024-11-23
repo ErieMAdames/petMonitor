@@ -34,7 +34,7 @@ output_vstream_info = network_group.get_output_vstream_infos()[0]
 def preprocess_frame(frame, input_shape):
     """Resize and normalize the frame for Hailo model input."""
     print('error here', frame.shape, input_shape)
-    resized = cv2.resize(frame, (input_shape.width, input_shape.height))
+    resized = cv2.resize(frame, input_shape)
     normalized = resized.astype(np.float32) / 255.0  # Normalize to 0-1 range
     return np.expand_dims(normalized, axis=0)  # Add batch dimension
 
