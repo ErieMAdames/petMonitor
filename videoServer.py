@@ -249,39 +249,39 @@ def run_websocket_server_in_thread(coroutine):
 picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
 output = StreamingOutput()
-class GStreamerStreamingOutput(io.BufferedIOBase):
-    def __init__(self):
-        # GStreamer pipeline for MJPEG streaming over HTTP
-        self.gst_command = [
-            "gst-launch-1.0",
-            "fdsrc", "!", 
-            "jpegparse", "!", 
-            "mjpegmux", "!", 
-            "tcpserversink", "host=0.0.0.0", "port=9000"
-        ]
-        self.gst_process = subprocess.Popen(self.gst_command, stdin=subprocess.PIPE)
-        self.condition = Condition()
+# class GStreamerStreamingOutput(io.BufferedIOBase):
+#     def __init__(self):
+#         # GStreamer pipeline for MJPEG streaming over HTTP
+#         self.gst_command = [
+#             "gst-launch-1.0",
+#             "fdsrc", "!", 
+#             "jpegparse", "!", 
+#             "mjpegmux", "!", 
+#             "tcpserversink", "host=0.0.0.0", "port=9000"
+#         ]
+#         self.gst_process = subprocess.Popen(self.gst_command, stdin=subprocess.PIPE)
+#         self.condition = Condition()
 
-    def write(self, buf):
-        with self.condition:
-            self.gst_process.stdin.write(buf)
-            self.gst_process.stdin.flush()
+#     def write(self, buf):
+#         with self.condition:
+#             self.gst_process.stdin.write(buf)
+#             self.gst_process.stdin.flush()
 
-    def close(self):
-        # Terminate the GStreamer process
-        if self.gst_process:
-            self.gst_process.stdin.close()
-            self.gst_process.terminate()
-            self.gst_process.wait()
-            self.gst_process = None
+#     def close(self):
+#         # Terminate the GStreamer process
+#         if self.gst_process:
+#             self.gst_process.stdin.close()
+#             self.gst_process.terminate()
+#             self.gst_process.wait()
+#             self.gst_process = None
 
-# Initialize the GStreamer output
-gst_output = GStreamerStreamingOutput()
+# # Initialize the GStreamer output
+# gst_output = GStreamerStreamingOutput()
 
-# Replace existing recording setup
-picam2.start_recording(JpegEncoder(), FileOutput(gst_output))
+# # Replace existing recording setup
+# picam2.start_recording(JpegEncoder(), FileOutput(gst_output))
 
-# picam2.start_recording(JpegEncoder(), FileOutput(output))
+picam2.start_recording(JpegEncoder(), FileOutput(output))
 picam2_dog_monitor = Picamera2(1)
 picam2_dog_monitor.start()
 picam2_cat_monitor = Picamera2(2)
