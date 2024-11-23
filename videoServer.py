@@ -28,7 +28,7 @@ vdevice = VDevice()  # Virtual Device
 print(vdevice)
 hef = HEF("/usr/share/hailo-models/yolov6n.hef")  # Replace with your .hef model path
 print(hef)
-network_group = vdevice.configure(hef)
+network_group = vdevice.configure(hef)[0]
 print(network_group)
 context = network_group.create_context()
 print(context)
