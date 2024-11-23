@@ -21,9 +21,7 @@ import asyncio
 import websockets
 import base64
 import time
-import gi
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GLib
+
 
 button = Button(16)
 counter = 0
@@ -122,15 +120,7 @@ class StreamingOutput(io.BufferedIOBase):
         with self.condition:
             self.frame = buf
             self.condition.notify_all()
-def on_new_sample(sink, data):
-    sample = sink.emit('pull-sample')
-    if sample:
-        buf = sample.get_buffer()
-        result, map_info = buf.map(Gst.MapFlags.READ)
-        if result:
-            data.write(map_info.data)
-            buf.unmap(map_info)
-    return Gst.FlowReturn.OK
+
 
 class StreamingHandler(server.BaseHTTPRequestHandler):
     def do_GET(self):
@@ -287,35 +277,15 @@ def run_websocket_server_in_thread(coroutine):
     thread.start()
     return thread
 
-
-# picam2 = Picamera2()
-# picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
-# output = StreamingOutput()
-
-# picam2.start_recording(JpegEncoder(), FileOutput(output))
-Gst.init(None)
-
-# Create pipeline
-pipeline = Gst.parse_launch(
-    "libcamerasrc name=source ! video/x-raw, format=RGB, width=1536, height=864 ! "
-    "videoconvert ! jpegenc ! appsink name=custom_sink"
-)
-
-# Get the appsink element
-appsink = pipeline.get_by_name('custom_sink')
-appsink.set_property('emit-signals', True)
-appsink.set_property('sync', False)
-
-# Connect appsink signals
+picam2 = Picamera2()
+picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
 output = StreamingOutput()
-appsink.connect('new-sample', on_new_sample, output)
 
-# Start the pipeline
-pipeline.set_state(Gst.State.PLAYING)
-# picam2_dog_monitor = Picamera2(1)
-# picam2_dog_monitor.start()
-# picam2_cat_monitor = Picamera2(2)
-# picam2_cat_monitor.start()
+picam2.start_recording(JpegEncoder(), FileOutput(output))
+picam2_dog_monitor = Picamera2(1)
+picam2_dog_monitor.start()
+picam2_cat_monitor = Picamera2(2)
+picam2_cat_monitor.start()
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
@@ -323,11 +293,7 @@ try:
     http_server_thread.daemon = True
     http_server_thread.start()
 
-    loop = GLib.MainLoop()
-    loop.run()
-    # run_websocket_server_in_thread(start_websocket_server())
-    # asyncio.run(start_websocket_server_poop_monitor())
+    run_websocket_server_in_thread(start_websocket_server())
+    asyncio.run(start_websocket_server_poop_monitor())
 finally:
-    # picam2.stop_recording()
-
-    pipeline.set_state(Gst.State.NULL)
+    picam2.stop_recording()

@@ -1,59 +1,83 @@
-import gi
-import io
-from threading import Condition
+#!/usr/bin/env python3
 
-gi.require_version('Gst', '1.0')
-from gi.repository import Gst, GLib
+"""Example module for Hailo Detection."""
 
-# Define your class to handle streaming output
-class StreamingOutput(io.BufferedIOBase):
-    def __init__(self):
-        self.frame = None
-        self.condition = Condition()
+import argparse
 
-    def write(self, buf):
-        with self.condition:
-            print('asdf')
-            self.frame = buf
-            self.condition.notify_all()
+import cv2
 
-# Callback to handle appsink data
-def on_new_sample(sink, data):
-    sample = sink.emit('pull-sample')
-    if sample:
-        buf = sample.get_buffer()
-        result, map_info = buf.map(Gst.MapFlags.READ)
-        if result:
-            data.write(map_info.data)
-            buf.unmap(map_info)
-    return Gst.FlowReturn.OK
+from picamera2 import MappedArray, Picamera2, Preview
+from picamera2.devices import Hailo
 
-# Initialize GStreamer
-Gst.init(None)
 
-# Create pipeline
-pipeline = Gst.parse_launch(
-    "libcamerasrc name=source ! video/x-raw, format=RGB, width=1536, height=864 ! "
-    "videoconvert ! appsink name=custom_sink"
-)
+def extract_detections(hailo_output, w, h, class_names, threshold=0.5):
+    """Extract detections from the HailoRT-postprocess output."""
+    results = []
+    for class_id, detections in enumerate(hailo_output):
+        for detection in detections:
+            print(detection)
+            continue
+            score = detection[4]
+            if score >= threshold:
+                y0, x0, y1, x1 = detection[:4]
+                bbox = (int(x0 * w), int(y0 * h), int(x1 * w), int(y1 * h))
+                results.append([class_names[class_id], bbox, score])
+    return results
 
-# Get the appsink element
-appsink = pipeline.get_by_name('custom_sink')
-appsink.set_property('emit-signals', True)
-appsink.set_property('sync', False)
 
-# Connect appsink signals
-output_handler = StreamingOutput()
-appsink.connect('new-sample', on_new_sample, output_handler)
+def draw_objects(request):
+    current_detections = detections
+    if current_detections:
+        with MappedArray(request, "main") as m:
+            for class_name, bbox, score in current_detections:
+                x0, y0, x1, y1 = bbox
+                label = f"{class_name} %{int(score * 100)}"
+                cv2.rectangle(m.array, (x0, y0), (x1, y1), (0, 255, 0, 0), 2)
+                cv2.putText(m.array, label, (x0 + 5, y0 + 15),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0, 0), 1, cv2.LINE_AA)
 
-# Start the pipeline
-pipeline.set_state(Gst.State.PLAYING)
 
-# Main loop to keep the application running
-try:
-    loop = GLib.MainLoop()
-    loop.run()
-except KeyboardInterrupt:
-    pass
-finally:
-    pipeline.set_state(Gst.State.NULL)
+if __name__ == "__main__":
+    # Parse command-line arguments.
+    parser = argparse.ArgumentParser(description="Detection Example")
+    parser.add_argument("-m", "--model", help="Path for the HEF model.",
+                        default="/usr/share/hailo-models/yolov8s_h8l.hef")
+    parser.add_argument("-l", "--labels", default="coco.txt",
+                        help="Path to a text file containing labels.")
+    parser.add_argument("-s", "--score_thresh", type=float, default=0.5,
+                        help="Score threshold, must be a float between 0 and 1.")
+    args = parser.parse_args()
+
+    # Get the Hailo model, the input size it wants, and the size of our preview stream.
+    with Hailo(args.model) as hailo:
+        model_h, model_w, _ = hailo.get_input_shape()
+        video_w, video_h = 1280, 960
+
+        # Load class names from the labels file
+        with open(args.labels, 'r', encoding="utf-8") as f:
+            class_names = f.read().splitlines()
+
+        # The list of detected objects to draw.
+        detections = None
+
+        # Configure and start Picamera2.
+        with Picamera2() as picam2:
+            main = {'size': (video_w, video_h), 'format': 'XRGB8888'}
+            lores = {'size': (model_w, model_h), 'format': 'RGB888'}
+            controls = {'FrameRate': 30}
+            config = picam2.create_preview_configuration(main, lores=lores, controls=controls)
+            picam2.configure(config)
+
+            picam2.start_preview(Preview.QTGL, x=0, y=0, width=video_w, height=video_h)
+            picam2.start()
+            picam2.pre_callback = draw_objects
+
+            # Process each low resolution camera frame.
+            while True:
+                frame = picam2.capture_array('lores')
+
+                # Run inference on the preprocessed frame
+                results = hailo.run(frame)
+
+                # Extract detections from the inference results
+                detections = extract_detections(results, video_w, video_h, class_names, args.score_thresh)
