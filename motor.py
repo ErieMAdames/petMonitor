@@ -22,11 +22,3 @@ class Motor():
         direction = direction if not self._is_reversed else not direction  
         self.dir_pin.value(direction)
         self.pwm_pin.pulse_width_percent(power)
-
-# m = Motor(PWM("P13"), Pin("D4"))
-# while True:
-#     time_ = int(input())
-#     power = int(input())
-#     m.set_power(power)
-#     time.sleep(time_)
-#     m.set_power(0)

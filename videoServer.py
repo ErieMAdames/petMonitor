@@ -15,9 +15,17 @@ from ultrasonic import Ultrasonic
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
+from gpiozero import Button
+from motor import Motor
 import asyncio
 import websockets
 import base64
+import time
+
+button = Button(17)
+counter = 0
+last_pressed_time = 0
+motor = Motor()
 
 PAGE = ''
 with open('index.html', 'r') as f:
@@ -36,6 +44,20 @@ servo1.set_angle(servo1_angle_offset)
 shadow_brightness = 50
 habichuela_brightness = 50
 ultrasonic = Ultrasonic()
+
+def on_button_press():
+    global counter, last_pressed_time
+    current_time = time.time()
+    if current_time - last_pressed_time >= 1:
+        print("Button pressed " + str(counter) + ' times')
+        motor.set_power(1)
+        time.sleep(.25)
+        motor.set_power(0)
+        counter += 1
+        last_pressed_time = current_time
+
+# Attach the function to the button press event
+button.when_pressed = on_button_press
 def up():
     global servo1_angle_offset
     global servo1_angle
