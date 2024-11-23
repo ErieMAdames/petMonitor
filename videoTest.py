@@ -114,8 +114,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             input_data = {input_vstream_info.name: np.expand_dims(np.asarray(resized_img), axis=0).astype(np.float32)}    
                             with network_group.activate(network_group_params):
                                 infer_results = infer_pipeline.infer(input_data)
-                        pprint(infer_results)
-                        pprint(infer_results.keys())
+                        pprint(infer_results['yolov6n/yolox_nms_postprocess'])
                         layer_from_shape: dict = {infer_results[key].shape:key for key in infer_results.keys()}
                         
                         pprint(layer_from_shape)
