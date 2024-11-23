@@ -26,7 +26,8 @@ PAGE = """\
 """
 
 # Hailo Initialization
-hef = HEF("/usr/share/hailo-models/yolov6n.hef")  # Replace with your .hef model path
+# hef = HEF("/usr/share/hailo-models/yolov6n.hef")  # Replace with your .hef model path
+hef = HEF("resources/yolox_s_leaky.hef")  # Replace with your .hef model path
 
 INPUT_RES_H = 640
 INPUT_RES_W = 640
@@ -124,7 +125,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                         #         # pprint(ir[0].shape)
                         #     except Exception as e:
                         #         print(e)
-                        layer_from_shape: dict = {infer_results[key][0].shape:key for key in infer_results.keys()}
+                        layer_from_shape: dict = {infer_results[key].shape:key for key in infer_results.keys()}
                         
                         pprint(layer_from_shape)
                         # postprocessing info for constructor as recommended in hailo_model_zoo/cfg/base/yolox.yaml
