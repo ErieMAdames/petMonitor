@@ -13,6 +13,7 @@ class StreamingOutput(io.BufferedIOBase):
 
     def write(self, buf):
         with self.condition:
+            print('asdf')
             self.frame = buf
             self.condition.notify_all()
 
