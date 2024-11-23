@@ -115,6 +115,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             with network_group.activate(network_group_params):
                                 infer_results = infer_pipeline.infer(input_data)
                         pprint(infer_results)
+                        pprint(infer_results.keys())
                         layer_from_shape: dict = {infer_results[key].shape:key for key in infer_results.keys()}
                         
                         pprint(layer_from_shape)
