@@ -23,10 +23,16 @@ import base64
 import time
 from hailo_platform import HEF, VDevice
 # Hailo Initialization
+
 vdevice = VDevice()  # Virtual Device
+print(vdevice)
 hef = HEF("/usr/share/hailo-models/yolov6n.hef")  # Replace with your .hef model path
+print(hef)
 network_group = vdevice.configure(hef)
+print(network_group)
 context = network_group.create_context()
+print(context)
+
 button = Button(16)
 counter = 0
 last_pressed_time = 0
