@@ -106,7 +106,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                         # Decode frame for processing
                         np_frame = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR)
 
-                        resized_img = cv2.resize(frame, (640, 640), interpolation = cv2.INTER_AREA)
+                        resized_img = cv2.resize(np_frame, (640, 640), interpolation = cv2.INTER_AREA)
                         with InferVStreams(network_group, input_vstreams_params, output_vstreams_params) as infer_pipeline:
                             input_data = {input_vstream_info.name: np.expand_dims(np.asarray(resized_img), axis=0).astype(np.float32)}    
                             with network_group.activate(network_group_params):
