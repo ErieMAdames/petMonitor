@@ -120,7 +120,7 @@ class StreamingOutput(io.BufferedIOBase):
 
     def write(self, buf):
         with self.condition:
-            print('here')
+            print(buf)
             self.frame = buf
             self.condition.notify_all()
 def on_new_sample(sink, data):
