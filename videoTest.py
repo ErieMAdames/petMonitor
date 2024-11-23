@@ -114,7 +114,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             input_data = {input_vstream_info.name: np.expand_dims(np.asarray(resized_img), axis=0).astype(np.float32)}    
                             with network_group.activate(network_group_params):
                                 infer_results = infer_pipeline.infer(input_data)
-                        for ir in infer_results['yolov6n/yolox_nms_postprocess']:
+                        for ir in infer_results['yolov6n/yolox_nms_postprocess'][0]:
                             try:
                                 print(len(ir))
                                 print(ir)
