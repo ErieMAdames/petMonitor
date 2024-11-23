@@ -116,7 +116,7 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                                 infer_results = infer_pipeline.infer(input_data)
                         for ir in infer_results['yolov6n/yolox_nms_postprocess']:
                             try:
-                                pprint(ir)
+                                pprint(len(ir))
                                 pprint(ir[0])
                                 pprint(ir[0].shape)
                                 pprint(ir.shape)
