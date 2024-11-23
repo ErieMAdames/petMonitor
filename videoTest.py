@@ -11,6 +11,7 @@ from hailo_platform import (HEF, Device, VDevice, HailoStreamInterface, InferVSt
     InputVStreamParams, OutputVStreamParams, InputVStreams, OutputVStreams, FormatType)
 from yolo import YoloPostProc
 import logging
+from pprint import pprint
 
 PAGE = """\
 <html>
@@ -113,10 +114,10 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                             input_data = {input_vstream_info.name: np.expand_dims(np.asarray(resized_img), axis=0).astype(np.float32)}    
                             with network_group.activate(network_group_params):
                                 infer_results = infer_pipeline.infer(input_data)
-                                print(infer_results)
-
-                        layer_from_shape: dict = {infer_results[key].shape:key for key in infer_results.keys()}            
+                        pprint(infer_results)
+                        layer_from_shape: dict = {infer_results[key].shape:key for key in infer_results.keys()}
                         
+                        pprint(layer_from_shape)
                         # postprocessing info for constructor as recommended in hailo_model_zoo/cfg/base/yolox.yaml
                         anchors = {"strides": [32, 16, 8], "sizes": [[1, 1], [1, 1], [1, 1]]}
                         yolox_post_proc = YoloPostProc(img_dims=(INPUT_RES_H,INPUT_RES_H), nms_iou_thresh=0.65, score_threshold=0.01, 
