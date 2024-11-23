@@ -27,9 +27,12 @@ vdevice = VDevice()  # Virtual Device
 hef = HEF("/usr/share/hailo-models/yolov6n.hef")  # Replace with your .hef model path
 network_group = vdevice.configure(hef)[0]
 
-# Get input and output vstreams
-input_vstream_info = network_group.get_input_vstream_infos()[0]
-output_vstream_info = network_group.get_output_vstream_infos()[0]
+network_group.activate()
+
+# Create VStreams for input and output
+vstreams = vdevice.create_vstreams(network_group)
+input_vstream = vstreams[0]
+output_vstream = vstreams[1]
 
 def preprocess_frame(frame, input_shape):
     """Resize and normalize the frame for Hailo model input."""
@@ -100,14 +103,16 @@ class StreamingHandler(server.BaseHTTPRequestHandler):
                     np_frame = cv2.imdecode(np.frombuffer(frame, dtype=np.uint8), cv2.IMREAD_COLOR)
 
                     # Preprocess frame for inference
-                    input_tensor = preprocess_frame(np_frame, input_vstream_info.shape)
+                    input_tensor = preprocess_frame(np_frame, input_vstream.shape)
 
-                    # Run inference
-                    input_data = {input_vstream_info.name: input_tensor}
-                    output_data = network_group.run(input_data)
+                    # Run inference using VStreams
+                    input_vstream.write(input_tensor)
+                    output_tensor = output_vstream.read()
+
 
                     # Post-process detections
-                    detections = postprocess_detections(output_data[output_vstream_info.name], np_frame.shape)
+                    detections = postprocess_detections(output_tensor, np_frame.shape)
+
 
                     # Overlay detections
                     processed_frame = overlay_detections(np_frame, detections)
