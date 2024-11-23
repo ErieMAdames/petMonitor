@@ -63,7 +63,7 @@ def overlay_detections(frame, detections):
                     cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
     return frame
 
-class StreamingOutput:
+class StreamingOutput(io.BufferedIOBase):
     """Thread-safe buffer to store the latest frame."""
     def __init__(self):
         self.frame = None

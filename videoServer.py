@@ -53,6 +53,37 @@ shadow_brightness = 50
 habichuela_brightness = 50
 ultrasonic = Ultrasonic()
 
+def preprocess_frame(frame, input_shape):
+    """Resize and normalize the frame for Hailo model input."""
+    resized = cv2.resize(frame, (input_shape.width, input_shape.height))
+    normalized = resized.astype(np.float32) / 255.0  # Normalize to 0-1 range
+    return np.expand_dims(normalized, axis=0)  # Add batch dimension
+
+def postprocess_detections(output, original_shape):
+    """Parse Hailo output into human-readable detections."""
+    detections = []
+    for detection in output:
+        x, y, w, h = detection[:4]
+        label = int(detection[5])  # Class ID
+        confidence = detection[4]
+        # Scale back to original image size
+        x *= original_shape[1]
+        y *= original_shape[0]
+        w *= original_shape[1]
+        h *= original_shape[0]
+        detections.append({"bbox": (int(x), int(y), int(w), int(h)), "confidence": confidence, "label": label})
+    return detections
+
+def overlay_detections(frame, detections):
+    """Draw bounding boxes and labels on the frame."""
+    for detection in detections:
+        x, y, w, h = detection["bbox"]
+        confidence = detection["confidence"]
+        label = detection["label"]
+        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
+        cv2.putText(frame, f"Label: {label} ({confidence:.2f})", (x, y - 10),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+    return frame
 def on_button_press():
     global counter, last_pressed_time
     current_time = time.time()
