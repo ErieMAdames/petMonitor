@@ -7,7 +7,7 @@ import argparse
 import cv2
 
 from picamera2 import MappedArray, Picamera2, Preview
-from picamera2.devices import Hailo
+from hh import Hailo
 
 
 def extract_detections(hailo_output, w, h, class_names, threshold=0.5):
