@@ -158,6 +158,7 @@
         width: fit-content;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
     }
     .shadow-poop-capture-container,
     .habichuela-poop-capture-container {
@@ -165,7 +166,7 @@
     }
     .shadow-poop-capture-container img,
     .habichuela-poop-capture-container img {
-        height: 482px;
+        height: 400px;
         width: 642px;
     }
     .shadow-poop-capture-container .label,
@@ -229,6 +230,10 @@
         margin: 0 auto;
         margin-top: 80px;
     }
+    .slider-container {
+        display: flex;
+        flex-direction: column;
+    }
 </style>
 </head>
 <body>
@@ -244,19 +249,27 @@
                 <div class="shadow-poop-capture-container">
                     <p class="label">Shadow's Pad</p>
                     <img src="" class="shadow-poop-capture"/>
-                    <input type="range" min="1" max="100" value="50" class="slider" id="shadow-brightness-slider" name="shadow-brightness-slider">
-                    <label name="shadow-brightness-slider">Brightness</label>
-                    <input type="range" min="1" max="100" value="0" class="slider" id="shadow-zoom-slider" name="shadow-zoom-slider">
-                    <label name="shadow-zoom-slider">Zoom</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="50" class="slider" id="shadow-brightness-slider" name="shadow-brightness-slider">
+                        <label name="shadow-brightness-slider">Brightness</label>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="0" class="slider" id="shadow-zoom-slider" name="shadow-zoom-slider">
+                        <label name="shadow-zoom-slider">Zoom</label>
+                    </div>
                     <p class="detected">POOP DETECTED, CHANGE THE PAD</p>
                 </div>
                 <div class="habichuela-poop-capture-container">
                     <p class="label">Habichuela's litter box</p>
                     <img src="" class="habichuela-poop-capture"/>
-                    <input type="range" min="1" max="100" value="50" class="slider" id="habichuela-brightness-slider" name="habichuela-brightness-slider">
-                    <label name="habichuela-brightness-slider">Brightness</label>
-                    <input type="range" min="1" max="100" value="0" class="slider" id="habichuela-zoom-slider" name="habichuela-zoom-slider">
-                    <label name="habichuela-zoom-slider">Zoom</label>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="50" class="slider" id="habichuela-brightness-slider" name="habichuela-brightness-slider">
+                        <label name="habichuela-brightness-slider">Brightness</label>
+                    </div>
+                    <div class="slider-container">
+                        <input type="range" min="1" max="100" value="0" class="slider" id="habichuela-zoom-slider" name="habichuela-zoom-slider">
+                        <label name="habichuela-zoom-slider">Zoom</label>
+                    </div>
                     <p class="detected">POOP DETECTED, POUR SOME BAKING SODA</p>
                 </div>
             </div>
