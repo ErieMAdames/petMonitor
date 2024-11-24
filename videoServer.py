@@ -228,6 +228,7 @@ def on_button_press():
         counter += 1
         last_pressed_time = current_time
         log_food_event('treat')
+        send_notification('Shadow took a treat', 'Shadow took a treat')
         
 
 # Attach the function to the button press event
@@ -463,7 +464,8 @@ async def websocket_poop_handler(websocket):
                         send_notification('Habichuela pooped', 'Habichuela pooped, add some baking soda to the litterbox')
                         habichuela_pooped = True
                         habichuela_num_poops = get_habichuela_num_poops()
-                        print(habichuela_num_poops)
+                        if (habichuela_num_poops > 15):
+                            send_notification('Go Change the litter box', 'Habichuela needs new litter')
             else:
                 if habichuela_pooped:
                     if habichuela_poop_clean_time is None:
@@ -610,8 +612,6 @@ def shadow_grooming_notification():
 def habichuela_grooming_notification():
     send_notification('Its time to give brush Habichuela', "Brush Habichuela so that you dont have to deal with so much fur")
 
-habichuela_num_poops = get_habichuela_num_poops()
-print(habichuela_num_poops)
 schedule.every().day.at("18:00").do(walk_notification)
 schedule.every().day.at("21:00").do(habichuela_grooming_notification)
 schedule.every(30).days.at("20:00").do(shadow_grooming_notification)
