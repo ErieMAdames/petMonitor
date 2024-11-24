@@ -305,7 +305,6 @@ def audio_callback(indata, frames, time, status):
     global bark_detected
     global rms
     rms = float(max(np.sqrt(np.mean(indata[:, 0]**2)), np.sqrt(np.mean(indata[:, 1]**2))))
-    print(rms)
     if rms > LOUDNESS_THRESHOLD:
         bark_detected = True
     else:
