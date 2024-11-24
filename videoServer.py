@@ -167,7 +167,7 @@ def get_logs():
     shadow_pooped = cursor.fetchall()
     cursor.execute("SELECT * FROM activity_logs WHERE type='shadow poop cleaned' ORDER BY timestamp DESC LIMIT 1")
     shadow_poop_cleaned = cursor.fetchall()
-    cursor.execute("SELECT * FROM activity_logs WHERE event='bark detected' ORDER BY timestamp DESC LIMIT 5")
+    cursor.execute("SELECT * FROM activity_logs WHERE type='bark detected' ORDER BY timestamp DESC LIMIT 5")
     barks = cursor.fetchall()
     conn.close()
     return {
