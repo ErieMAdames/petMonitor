@@ -111,6 +111,7 @@
                 currentLoudnessRms.innerHTML = data.rms.toFixed(2);
             }
             if (data.state !== undefined) {
+                console.log(date);
                 shadowBrightnessSlider.value = data.shadowBrightness;
                 habichuelaBrightnessSlider.value = data.habichuelaBrightness;
                 shadowZoomSlider.value = data.shadowZoom;
