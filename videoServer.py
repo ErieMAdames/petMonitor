@@ -419,8 +419,10 @@ async def websocket_poop_handler(websocket):
         if data.get("action", None) == 'brightness':
             if data.get("slider", None) == 'shadow':
                 shadow_brightness = int(data.get('value', 50))
+                save_camera_settings('shadow', shadow_brightness, zoom_level_shadow)
             if data.get("slider", None) == 'habichuela':
                 habichuela_brightness = int(data.get('value', 50))
+                save_camera_settings('habichuela', habichuela_brightness, zoom_level_habichuela)
         if data.get("action", None) == 'zoom':
             if data.get("slider", None) == 'shadow':
                 zoom_level_shadow = 1 + (int(data.get('value', 0)) / 100)
@@ -471,12 +473,12 @@ async def websocket_poop_handler(websocket):
             state = {}
             for cam_setting in cam_settings:
                 if cam_setting[0] == 'main':
-                    state['mainZoom'] = cam_setting[2]
+                    state['mainZoom'] = (1 - cam_setting[2]) * 100
                 if cam_setting[0] == 'shadow':
-                    state['shadowZoom'] = cam_setting[2]
+                    state['shadowZoom'] = (cam_setting[2] - 1) * 100
                     state['shadowBrightness'] = cam_setting[1]
                 if cam_setting[0] == 'habichuela':
-                    state['habichuelaZoom'] = cam_setting[2]
+                    state['habichuelaZoom'] = (cam_setting[2] - 1) * 100
                     state['habichuelaBrightness'] = cam_setting[1]
             response = json.dumps({'state': state})
             await websocket.send(response)
