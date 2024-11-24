@@ -93,7 +93,7 @@
         );
         setInterval(
             function() {
-                ws_images.send(JSON.stringify({ bark_detected: "bark_detected" }));
+                ws_images.send(JSON.stringify({ loudness: "loudness" }));
             },
             500
         );
