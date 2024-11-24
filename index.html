@@ -49,7 +49,7 @@
                 }
             }
             if (data.water_level) {
-                if (data.water_level < 1000) {
+                if (data.water_out) {
                     waterLevelMessage.innerHTML = 'Water levels low. Refill water now';
                     waterLevelMessage.classList.add('refill');
                 } else {
@@ -58,7 +58,7 @@
                 }
             }
             if (data.food_level) {
-                if (data.food_level > 20) {
+                if (data.food_out) {
                     foodLevelMessage.innerHTML = 'Food levels low. Refill food now';
                     foodLevelMessage.classList.add('refill');
                 } else {

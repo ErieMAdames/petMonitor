@@ -41,6 +41,10 @@ shadow_poop_clean_time = None
 habichuela_pooped = False
 habichuela_poop_start_time = None
 habichuela_poop_clean_time = None
+water_ran_out = False
+water_refilled = True
+food_ran_out = False
+food_refilled = True
 DETECTION_DURATION_THRESHOLD = 10  # 2 minutes in seconds
 zoom_level_main = 1.0
 zoom_level_shadow = 1.0
@@ -124,7 +128,6 @@ def log_water_event(event):
     conn.close()
 
 def log_activity(event_type, loudness=None):
-    print(event_type)
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO activity_logs (timestamp, type, loudness) VALUES (?, ?, ?)", 
@@ -132,14 +135,14 @@ def log_activity(event_type, loudness=None):
     conn.commit()
     conn.close()
 
-def save_camera_settings(camera_id, brightness, zoom):
+def save_camera_settings(camera_id, brightness, zoom, x=0, y=0):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("""
-        INSERT INTO camera_settings (camera_id, brightness, zoom)
-        VALUES (?, ?, ?)
-        ON CONFLICT(camera_id) DO UPDATE SET brightness=?, zoom=?
-    """, (camera_id, brightness, zoom, brightness, zoom))
+        INSERT INTO camera_settings (camera_id, brightness, zoom, x, y)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(camera_id) DO UPDATE SET brightness=?, zoom=?, x=?, y=?
+    """, (camera_id, brightness, zoom, brightness, zoom, x, y))
     conn.commit()
     conn.close()
 
@@ -159,70 +162,55 @@ def get_camera_settings():
     rows = cursor.fetchall()
     conn.close()
     return rows
-def preprocess_frame(frame, input_shape):
-    """Resize and normalize the frame for Hailo model input."""
-    resized = cv2.resize(frame, (input_shape.width, input_shape.height))
-    normalized = resized.astype(np.float32) / 255.0  # Normalize to 0-1 range
-    return np.expand_dims(normalized, axis=0)  # Add batch dimension
 
-def postprocess_detections(output, original_shape):
-    """Parse Hailo output into human-readable detections."""
-    detections = []
-    for detection in output:
-        x, y, w, h = detection[:4]
-        label = int(detection[5])  # Class ID
-        confidence = detection[4]
-        # Scale back to original image size
-        x *= original_shape[1]
-        y *= original_shape[0]
-        w *= original_shape[1]
-        h *= original_shape[0]
-        detections.append({"bbox": (int(x), int(y), int(w), int(h)), "confidence": confidence, "label": label})
-    return detections
-
-def overlay_detections(frame, detections):
-    """Draw bounding boxes and labels on the frame."""
-    for detection in detections:
-        x, y, w, h = detection["bbox"]
-        confidence = detection["confidence"]
-        label = detection["label"]
-        cv2.rectangle(frame, (x, y), (x + w, y + h), (0, 255, 0), 2)
-        cv2.putText(frame, f"Label: {label} ({confidence:.2f})", (x, y - 10),
-                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
-    return frame
 def on_button_press():
     global counter, last_pressed_time
     current_time = time.time()
     if current_time - last_pressed_time >= 1:
-        print("Button pressed " + str(counter) + ' times')
         motor.set_power(1)
         time.sleep(.25)
         motor.set_power(0)
         counter += 1
         last_pressed_time = current_time
+        log_food_event('treat')
+        
 
 # Attach the function to the button press event
 button.when_pressed = on_button_press
 def up():
     global servo1_angle_offset
     global servo1_angle
+    global servo0_angle
+    global zoom_level_main
     servo1_angle = max(servo1_angle - 2, -90)
     servo1.set_angle(servo1_angle + servo1_angle_offset)
+    save_camera_settings('main', 0, zoom_level_main, servo0_angle + servo0_angle_offset, servo1_angle + servo1_angle_offset)
 def down():
     global servo1_angle_offset
     global servo1_angle
+    global servo0_angle
+    global zoom_level_main
     servo1_angle = min(servo1_angle + 2 , 90)
     servo1.set_angle(servo1_angle + servo1_angle_offset)
+    save_camera_settings('main', 0, zoom_level_main, servo0_angle + servo0_angle_offset, servo1_angle + servo1_angle_offset)
 def right():
     global servo0_angle_offset
     global servo0_angle
+    global servo1_angle
+    global zoom_level_main
     servo0_angle = max(servo0_angle - 2, -90)
     servo0.set_angle(servo0_angle + servo0_angle_offset)
+    save_camera_settings('main', 0, zoom_level_main, servo0_angle + servo0_angle_offset, servo1_angle + servo1_angle_offset)
 def left():
     global servo0_angle_offset
     global servo0_angle
+    global servo0_angle_offset
+    global servo0_angle
+    global servo1_angle
+    global zoom_level_main
     servo0_angle = min(servo0_angle + 2, 90)
     servo0.set_angle(servo0_angle + servo0_angle_offset)
+    save_camera_settings('main', 0, zoom_level_main, servo0_angle + servo0_angle_offset, servo1_angle + servo1_angle_offset)
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -355,6 +343,10 @@ async def websocket_poop_handler(websocket):
         global habichuela_pooped
         global habichuela_poop_start_time
         global habichuela_poop_clean_time
+        global water_ran_out
+        global water_refilled
+        global food_ran_out
+        global food_refilled
         data = json.loads(message)
         if data.get("pet", None) == 'shadow':
             img = picam2_shadow_monitor.capture_array()
@@ -433,21 +425,42 @@ async def websocket_poop_handler(websocket):
         if data.get("action", None) == 'zoom':
             if data.get("slider", None) == 'shadow':
                 zoom_level_shadow = 1 + (int(data.get('value', 0)) / 100)
+                save_camera_settings('shadow', shadow_brightness, zoom_level_shadow)
             if data.get("slider", None) == 'habichuela':
                 zoom_level_habichuela = 1 + (int(data.get('value', 0)) / 100)
+                save_camera_settings('habichuela', habichuela_brightness, zoom_level_habichuela)
             if data.get("slider", None) == 'main':
                     zoom_level_main = 1 - (int(data.get('value', 0)) / 100)
                     picam2.capture_metadata()
                     new_size = [int(s * zoom_level_main) for s in size]
                     offset = [(r - s) // 2 for r, s in zip(full_res, new_size)]
                     picam2.set_controls({"ScalerCrop": offset + new_size})
+                    save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
         if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
-            response = json.dumps({"water_level": water_level})
+            water_out = water_level < 1000
+            if water_out and not water_ran_out:
+                water_ran_out = True
+                water_refilled = False
+                log_water_event('out')
+            if not water_out and not water_refilled:
+                log_water_event('refilled')
+                water_refilled = True
+                water_ran_out = False
+            response = json.dumps({"water_level": water_level, 'water_out': water_out})
             await websocket.send(response)
         if data.get("food_level", None) == 'food_level':
             food_level = ultrasonic.get_distance()
-            response = json.dumps({"food_level": food_level})
+            food_out = food_level < 20
+            if food_out and not food_ran_out:
+                food_ran_out = True
+                food_refilled = False
+                log_food_event('out')
+            if not food_out and not food_refilled:
+                log_food_event('refilled')
+                food_refilled = True
+                food_ran_out = False
+            response = json.dumps({"food_level": food_level, 'food_out': food_out})
             await websocket.send(response)
         if data.get("loudness", None) == 'loudness':
             global rms
@@ -487,6 +500,7 @@ def audio_callback(indata, frames, time, status):
     rms = float(max(np.sqrt(np.mean(indata[:, 0]**2)), np.sqrt(np.mean(indata[:, 1]**2))))
     if rms > LOUDNESS_THRESHOLD:
         bark_detected = True
+        log_activity('bark detected', rms)
     else:
         bark_detected = False
 create_tables()
