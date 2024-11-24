@@ -2,7 +2,7 @@ import sounddevice as sd
 import numpy as np
 
 # Parameters
-SAMPLERATE = 44100  # Sampling rate (Hz)
+SAMPLERATE = 8000  # Sampling rate (Hz)
 CHUNK_SIZE = 1024   # Number of audio frames per chunk
 LOUDNESS_THRESHOLD = 0.5  # RMS value threshold for loud sounds
 DEVICE_INDEX = 1  # Replace with your device index, or leave None for default
