@@ -23,7 +23,11 @@ import websockets
 import base64
 import time
 import libcamera
+import sqlite3
+from datetime import datetime
 
+
+DB_PATH = "pet_monitor.db"
 SAMPLERATE = 16000  # Sampling rate (Hz)
 CHUNK_SIZE = 1024   # Number of audio frames per chunk
 LOUDNESS_THRESHOLD = 0.5  # RMS value threshold for loud sounds
@@ -31,7 +35,13 @@ DEVICE_INDEX = 1  # Replace with your device index, or leave None for default
 CHANNELS = 2  # Use 2 if your microphone supports only stereo
 bark_detected = False
 rms = 0
-
+shadow_pooped = False
+shadow_poop_start_time = None
+shadow_poop_clean_time = None
+habichuela_pooped = False
+habichuela_poop_start_time = None
+habichuela_poop_clean_time = None
+DETECTION_DURATION_THRESHOLD = 10  # 2 minutes in seconds
 zoom_level_main = 1.0
 zoom_level_shadow = 1.0
 zoom_level_habichuela = 1.0
@@ -58,6 +68,97 @@ shadow_brightness = 50
 habichuela_brightness = 50
 ultrasonic = Ultrasonic()
 
+def create_tables():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Create tables
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS food_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            event TEXT NOT NULL -- 'out' or 'refill'
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS water_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            event TEXT NOT NULL -- 'out' or 'refill'
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS activity_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            timestamp TEXT NOT NULL,
+            type TEXT NOT NULL, -- 'poop_cat', 'poop_dog', 'bark'
+            loudness REAL -- Optional, for barking events
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS camera_settings (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            camera_id INTEGER NOT NULL,
+            brightness REAL NOT NULL,
+            zoom REAL NOT NULL,
+            x REAL, -- Optional, for main cam position
+            y REAL -- Optional, for main cam position
+        )
+    """)
+    conn.commit()
+    conn.close()
+def log_food_event(event):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO food_logs (timestamp, event) VALUES (?, ?)", 
+                   (datetime.now().isoformat(), event))
+    conn.commit()
+    conn.close()
+
+def log_water_event(event):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO water_logs (timestamp, event) VALUES (?, ?)", 
+                   (datetime.now().isoformat(), event))
+    conn.commit()
+    conn.close()
+
+def log_activity(event_type, loudness=None):
+    print(event_type)
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO activity_logs (timestamp, type, loudness) VALUES (?, ?, ?)", 
+                   (datetime.now().isoformat(), event_type, loudness))
+    conn.commit()
+    conn.close()
+
+def save_camera_settings(camera_id, brightness, zoom):
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("""
+        INSERT INTO camera_settings (camera_id, brightness, zoom)
+        VALUES (?, ?, ?)
+        ON CONFLICT(camera_id) DO UPDATE SET brightness=?, zoom=?
+    """, (camera_id, brightness, zoom, brightness, zoom))
+    conn.commit()
+    conn.close()
+
+# Query data functions
+def get_food_logs():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM food_logs")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
+
+def get_camera_settings():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM camera_settings")
+    rows = cursor.fetchall()
+    conn.close()
+    return rows
 def preprocess_frame(frame, input_shape):
     """Resize and normalize the frame for Hailo model input."""
     resized = cv2.resize(frame, (input_shape.width, input_shape.height))
@@ -248,6 +349,12 @@ async def websocket_poop_handler(websocket):
         global zoom_level_main
         global size
         global full_res
+        global shadow_pooped
+        global shadow_poop_start_time
+        global shadow_poop_clean_time
+        global habichuela_pooped
+        global habichuela_poop_start_time
+        global habichuela_poop_clean_time
         data = json.loads(message)
         if data.get("pet", None) == 'shadow':
             img = picam2_shadow_monitor.capture_array()
@@ -259,11 +366,26 @@ async def websocket_poop_handler(websocket):
                 y1 = (height - new_height) // 2
                 x2 = x1 + new_width
                 y2 = y1 + new_height
-                # Crop and resize the image
                 img = img[y1:y2, x1:x2]
                 img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img, detected = find_poop(img, shadow_brightness)
+            if detected:
+                if not shadow_pooped:
+                    if shadow_poop_start_time is None:
+                        shadow_poop_start_time = time.time()
+                    elif time.time() - shadow_poop_start_time >= DETECTION_DURATION_THRESHOLD:
+                        log_activity("shadow pooped")
+                        shadow_pooped = True
+            else:
+                if shadow_pooped:
+                    if shadow_poop_clean_time is None:
+                        shadow_poop_clean_time = time.time()
+                    elif time.time() - shadow_poop_clean_time >= DETECTION_DURATION_THRESHOLD:
+                        log_activity("shadow poop cleaned")
+                        shadow_poop_start_time = None
+                        shadow_poop_clean_time = None
+                        shadow_pooped = False
             _, jpeg = cv2.imencode('.jpg', img)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
             response = json.dumps({"pet": "shadow", "image": img_base64, "detected": detected})
@@ -283,6 +405,22 @@ async def websocket_poop_handler(websocket):
                 img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img, detected = find_poop(img, habichuela_brightness)
+            if detected:
+                if not habichuela_pooped:
+                    if habichuela_poop_start_time is None:
+                        habichuela_poop_start_time = time.time()
+                    elif time.time() - habichuela_poop_start_time >= DETECTION_DURATION_THRESHOLD:
+                        log_activity("habichuela pooped")
+                        habichuela_pooped = True
+            else:
+                if habichuela_pooped:
+                    if habichuela_poop_clean_time is None:
+                        habichuela_poop_clean_time = time.time()
+                    elif time.time() - habichuela_poop_clean_time >= DETECTION_DURATION_THRESHOLD:
+                        log_activity("habichuela poop cleaned")
+                        habichuela_poop_start_time = None
+                        habichuela_poop_clean_time = None
+                        habichuela_pooped = False
             _, jpeg = cv2.imencode('.jpg', img)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
             response = json.dumps({"pet": "habichuela", "image": img_base64, "detected": detected})
@@ -351,7 +489,9 @@ def audio_callback(indata, frames, time, status):
         bark_detected = True
     else:
         bark_detected = False
-
+create_tables()
+cam_settings = get_camera_settings()
+print(cam_settings)
 picam2 = Picamera2()
 config = picam2.create_video_configuration(main={"size": (1280, 960)})
 config["transform"] = libcamera.Transform(vflip=1)
