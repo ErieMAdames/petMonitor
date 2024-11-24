@@ -334,11 +334,11 @@ picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
 output = StreamingOutput()
 
 picam2.start_recording(JpegEncoder(), FileOutput(output))
+print(picam2.capture_metadata())
 picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor_preview_config = picam2_shadow_monitor.create_preview_configuration()
 picam2_shadow_monitor.configure(picam2_shadow_monitor_preview_config)
 picam2_shadow_monitor.start()
-print(picam2_shadow_monitor.capture_metadata())
 picam2_shadow_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
 picam2_shadow_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
 
