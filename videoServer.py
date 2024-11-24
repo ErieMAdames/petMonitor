@@ -297,10 +297,11 @@ async def websocket_poop_handler(websocket):
             if data.get("slider", None) == 'habichuela':
                 zoom_level_habichuela = 1 + (int(data.get('value', 0)) / 100)
             if data.get("slider", None) == 'main':
+                    zoom_level_main = 1 - (int(data.get('value', 0)) / 100)
                     picam2.capture_metadata()
-                    size = [int(s * 0.95) for s in size]
-                    offset = [(r - s) // 2 for r, s in zip(full_res, size)]
-                    picam2.set_controls({"ScalerCrop": offset + size})
+                    new_size = [int(s * zoom_level_main) for s in size]
+                    offset = [(r - s) // 2 for r, s in zip(full_res, new_size)]
+                    picam2.set_controls({"ScalerCrop": offset + new_size})
         if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
             response = json.dumps({"water_level": water_level})
