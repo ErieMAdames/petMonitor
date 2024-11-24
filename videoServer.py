@@ -243,9 +243,10 @@ async def websocket_poop_handler(websocket):
     async for message in websocket:
         global shadow_brightness
         global habichuela_brightness
+        global zoom_level_shadow
+        global zoom_level_habichuela
         data = json.loads(message)
         if data.get("pet", None) == 'shadow':
-            global zoom_level_shadow
             img = picam2_shadow_monitor.capture_array()
             if zoom_level_shadow > 1:
                 height, width = img.shape[:2]
@@ -265,7 +266,6 @@ async def websocket_poop_handler(websocket):
             response = json.dumps({"pet": "shadow", "image": img_base64, "detected": detected})
             await websocket.send(response)
         if data.get("pet", None) == 'habichuela':
-            global zoom_level_habichuela
             img = picam2_habichuela_monitor.capture_array()
             if zoom_level_habichuela > 1:
                 height, width = img.shape[:2]
@@ -291,10 +291,8 @@ async def websocket_poop_handler(websocket):
                 habichuela_brightness = int(data.get('value', 50))
         if data.get("action", None) == 'zoom':
             if data.get("slider", None) == 'shadow':
-                global zoom_level_shadow
                 zoom_level_shadow = 1 + (int(data.get('value', 0)) / 100)
             if data.get("slider", None) == 'habichuela':
-                global zoom_level_habichuela
                 zoom_level_habichuela = 1 + (int(data.get('value', 0)) / 100)
         if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
