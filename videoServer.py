@@ -540,7 +540,7 @@ def run_bark_detector_thread():
     return thread
 
 last_bark_time = None
-def audio_callback(indata, frames, time, status):
+def audio_callback(indata, frames, time_, status):
     """Callback to process audio input."""
     global bark_detected
     global rms
