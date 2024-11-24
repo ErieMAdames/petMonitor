@@ -70,7 +70,6 @@ class Hailo:
             future._has_had_error = True
             future.set_exception(completion_info.exception)
         else:
-            print(bindings.output().get_buffer(True))
             if self.num_outputs <= 1:
                 # Only one output. Return the output directly.
                 if self.batch_size is None:

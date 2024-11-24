@@ -59,7 +59,8 @@ if __name__ == "__main__":
 
         # The list of detected objects to draw.
         detections = None
-
+        print(hailo.describe())
+        exit()
         # Configure and start Picamera2.
         with Picamera2() as picam2:
             main = {'size': (video_w, video_h), 'format': 'XRGB8888'}
