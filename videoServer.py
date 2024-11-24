@@ -539,15 +539,19 @@ def run_bark_detector_thread():
     thread.start()
     return thread
 
-
+last_bark_time = None
 def audio_callback(indata, frames, time, status):
     """Callback to process audio input."""
     global bark_detected
     global rms
     rms = float(max(np.sqrt(np.mean(indata[:, 0]**2)), np.sqrt(np.mean(indata[:, 1]**2))))
     if rms > LOUDNESS_THRESHOLD:
-        bark_detected = True
-        log_activity('bark detected', rms)
+        if last_bark_time is None:
+            last_bark_time = time.time()
+        elif time.time() - last_bark_time >= 2:
+            bark_detected = True
+            last_bark_time = time.time()
+            log_activity('bark detected', rms)
     else:
         bark_detected = False
 create_tables()
