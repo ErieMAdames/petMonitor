@@ -141,7 +141,7 @@ def save_camera_settings(camera_id, brightness, zoom, x=0, y=0):
         INSERT INTO camera_settings (camera_id, brightness, zoom, x, y)
         VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(camera_id) DO UPDATE SET brightness=?, zoom=?, x=?, y=?
-    """, (camera_id, brightness, zoom, brightness, zoom, x, y))
+    """, (camera_id, brightness, zoom, x, y, brightness, zoom, x, y))
     conn.commit()
     conn.close()
 
