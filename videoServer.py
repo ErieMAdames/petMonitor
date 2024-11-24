@@ -335,16 +335,16 @@ output = StreamingOutput()
 
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 picam2_shadow_monitor = Picamera2(1)
-picam2_shadow_monitor.start()
 picam2_shadow_monitor_preview_config = picam2_shadow_monitor.create_preview_configuration()
 picam2_shadow_monitor.configure(picam2_shadow_monitor_preview_config)
+picam2_shadow_monitor.start()
 picam2_shadow_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
 picam2_shadow_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
 
 picam2_habichuela_monitor = Picamera2(2)
-picam2_habichuela_monitor.start()
 picam2_habichuela_monitor_preview_config = picam2_habichuela_monitor.create_preview_configuration()
 picam2_habichuela_monitor.configure(picam2_habichuela_monitor_preview_config)
+picam2_habichuela_monitor.start()
 picam2_habichuela_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
 picam2_habichuela_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
 try:
