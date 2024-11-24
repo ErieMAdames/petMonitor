@@ -80,21 +80,21 @@ def create_tables():
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS food_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
+            timestamp TIMESTAMP NOT NULL,
             event TEXT NOT NULL -- 'out' or 'refill'
         )
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS water_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
+            timestamp TIMESTAMP NOT NULL,
             event TEXT NOT NULL -- 'out' or 'refill'
         )
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS activity_logs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            timestamp TEXT NOT NULL,
+            timestamp TIMESTAMP NOT NULL,
             type TEXT NOT NULL, -- 'poop_cat', 'poop_dog', 'bark'
             loudness REAL -- Optional, for barking events
         )
@@ -114,7 +114,7 @@ def log_food_event(event):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO food_logs (timestamp, event) VALUES (?, ?)", 
-                   (datetime.now().isoformat(), event))
+                   (datetime.now(), event))
     conn.commit()
     conn.close()
 
@@ -122,7 +122,7 @@ def log_water_event(event):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO water_logs (timestamp, event) VALUES (?, ?)", 
-                   (datetime.now().isoformat(), event))
+                   (datetime.now(), event))
     conn.commit()
     conn.close()
 
@@ -130,7 +130,7 @@ def log_activity(event_type, loudness=None):
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
     cursor.execute("INSERT INTO activity_logs (timestamp, type, loudness) VALUES (?, ?, ?)", 
-                   (datetime.now().isoformat(), event_type, loudness))
+                   (datetime.now(), event_type, loudness))
     conn.commit()
     conn.close()
 
@@ -146,13 +146,42 @@ def save_camera_settings(camera_id, brightness, zoom, x=0, y=0):
     conn.close()
 
 # Query data functions
-def get_food_logs():
+def get_logs():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM food_logs")
-    rows = cursor.fetchall()
+    cursor.execute("SELECT * FROM food_logs WHERE event='out' ORDER BY timestamp DESC LIMIT 1")
+    food_out = cursor.fetchall()
+    cursor.execute("SELECT * FROM food_logs WHERE event='refill' ORDER BY timestamp DESC LIMIT 1")
+    food_refilled = cursor.fetchall()
+    cursor.execute("SELECT * FROM water_logs WHERE event='out' ORDER BY timestamp DESC LIMIT 1")
+    water_out = cursor.fetchall()
+    cursor.execute("SELECT * FROM water_logs WHERE event='refill' ORDER BY timestamp DESC LIMIT 1")
+    water_refilled = cursor.fetchall()
+    cursor.execute("SELECT * FROM food_logs WHERE event='treat' ORDER BY timestamp DESC LIMIT 5")
+    treats = cursor.fetchall()
+    cursor.execute("SELECT * FROM activity_logs WHERE type='habichuela pooped' ORDER BY timestamp DESC LIMIT 1")
+    habichuela_pooped = cursor.fetchall()
+    cursor.execute("SELECT * FROM activity_logs WHERE type='habichuela poop cleaned' ORDER BY timestamp DESC LIMIT 1")
+    habichuela_poop_cleaned = cursor.fetchall()
+    cursor.execute("SELECT * FROM activity_logs WHERE type='shadow pooped' ORDER BY timestamp DESC LIMIT 1")
+    shadow_pooped = cursor.fetchall()
+    cursor.execute("SELECT * FROM activity_logs WHERE type='shadow poop cleaned' ORDER BY timestamp DESC LIMIT 1")
+    shadow_poop_cleaned = cursor.fetchall()
+    cursor.execute("SELECT * FROM activity_logs WHERE event='bark detected' ORDER BY timestamp DESC LIMIT 5")
+    barks = cursor.fetchall()
     conn.close()
-    return rows
+    return {
+        'food_out': food_out,
+        'food_refilled': food_refilled,
+        'water_out': water_out,
+        'water_refilled': water_refilled,
+        'treats': treats,
+        'habichuela_pooped': habichuela_pooped,
+        'habichuela_poop_cleaned': habichuela_poop_cleaned,
+        'shadow_pooped': shadow_pooped,
+        'shadow_poop_cleaned': shadow_poop_cleaned,
+        'barks': barks,
+    }
 
 def get_camera_settings():
     conn = sqlite3.connect(DB_PATH)
@@ -445,7 +474,7 @@ async def websocket_poop_handler(websocket):
                 water_refilled = False
                 log_water_event('out')
             if not water_out and not water_refilled:
-                log_water_event('refilled')
+                log_water_event('refill')
                 water_refilled = True
                 water_ran_out = False
             response = json.dumps({"water_level": water_level, 'water_out': water_out})
@@ -458,7 +487,7 @@ async def websocket_poop_handler(websocket):
                 food_refilled = False
                 log_food_event('out')
             if not food_out and not food_refilled:
-                log_food_event('refilled')
+                log_food_event('refill')
                 food_refilled = True
                 food_ran_out = False
             response = json.dumps({"food_level": food_level, 'food_out': food_out})
@@ -482,6 +511,8 @@ async def websocket_poop_handler(websocket):
                     state['habichuelaBrightness'] = cam_setting[1]
             response = json.dumps({'state': state})
             await websocket.send(response)
+        if data.get('logs', None) == 'logs':
+            print(get_logs())
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
         await asyncio.Future()  # Run forever

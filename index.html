@@ -38,6 +38,12 @@
                 },
                 50
             );
+            setInterval(
+                function() {
+                    ws_images.send(JSON.stringify({ logs: "logs" }));
+                },
+                1000
+            );
             ws_images.send(JSON.stringify({ state: "state" }));
         };
         ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
@@ -317,17 +323,32 @@
                 </div>
             </div>
         </div>
-        <div class="water-food-level-container">
-            <p class="water-level-message">
-                Water level normal
-            </p>
-            <p class="food-level-message">
-                Food level normal
-            </p>
-            <p class="dog-level-message">
-                Shadow is <span class="shadow-loudness-level">quiet</span><br>
-                Current loudness : <span class="current-loudness-db"></span>db | <span class="current-loudness-rms"></span> rms (not accurate)<br>
-            </p>
+        <div class="logs-container">
+            <div class="water-food-level-container">
+                <p class="water-level-message">
+                    Water level normal
+                </p>
+                <p class="food-level-message">
+                    Food level normal
+                </p>
+                <p class="dog-level-message">
+                    Shadow is <span class="shadow-loudness-level">quiet</span><br>
+                    Current loudness : <span class="current-loudness-db"></span>db | <span class="current-loudness-rms"></span> rms (not accurate)<br>
+                </p>
+            </div>
+            <div class="event-logs">
+                <p class="last-food-runout">Last food runout time <span class="last-food-runout-time"></span></p>
+                <p class="last-water-runout">Last water runout time <span class="last-water-runout-time"></span></p>
+                <p class="last-shadow-poop">Last Shadow poop time <span class="last-shadow-poop-time"></span></p>
+                <p class="last-shadow-poop-cleanup">Last Shadow poop cleanup time <span class="last-shadow-poop-cleanup-time"></span></p>
+                <p class="last-habichuela-poop">Last Habichuela poop time <span class="last-habichuela-poop-time"></span></p>
+                <p class="last-habichuela-poop-cleanup">Last Habichuela poop cleanup time <span class="last-habichuela-poop-cleanup-time"></span></p>
+                <div class="treats">
+                    <p>Time last 5 treats dispensed</p>
+                    <div class="treats-logs">
+                    </div>
+                </div>
+            </div>
         </div>
     </main>
 </body>
