@@ -327,7 +327,7 @@ def audio_callback(indata, frames, time, status):
     if rms > LOUDNESS_THRESHOLD:
         bark_detected = True
     else:
-        bark_detected = False)
+        bark_detected = False
 
 picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
