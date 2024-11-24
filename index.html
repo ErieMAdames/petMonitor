@@ -110,7 +110,7 @@
                 currentLoudnessdB.innerHTML = Math.abs(20 * Math.log10(data.rms)).toFixed(2);
                 currentLoudnessRms.innerHTML = data.rms.toFixed(2);
             }
-            if (data.state !== undefined) {
+            if (data.state !== undefined && Object.keys(state).length) {
                 console.log(data);
                 shadowBrightnessSlider.value = data.state.shadowBrightness;
                 habichuelaBrightnessSlider.value = data.state.habichuelaBrightness;
