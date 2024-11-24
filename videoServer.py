@@ -245,6 +245,7 @@ async def websocket_poop_handler(websocket):
         global habichuela_brightness
         global zoom_level_shadow
         global zoom_level_habichuela
+        global zoom_level_main
         global size
         global full_res
         data = json.loads(message)
@@ -360,6 +361,9 @@ output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 size = picam2.capture_metadata()['ScalerCrop'][2:]
 full_res = picam2.camera_properties['PixelArraySize']
+new_size = [int(s * zoom_level_main) for s in size]
+offset = [(r - s) // 2 for r, s in zip(full_res, new_size)]
+picam2.set_controls({"ScalerCrop": offset + new_size})
 
 picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
