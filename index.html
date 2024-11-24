@@ -69,7 +69,7 @@
                 if(data.bark_detected) {
                     shadowLoudnessLevel.innerHTML = 'barking'
                 }
-                currentLoudnessLevel.innerHTML = 20 * Math.log10(data.rms);
+                currentLoudnessLevel.innerHTML = Math.abs(20 * Math.log10(data.rms));
             }
         };
         setInterval(
