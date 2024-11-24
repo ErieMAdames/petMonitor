@@ -1,4 +1,5 @@
 __pycache__
 petMonitor
-pushoverToken.txt
-pet_monitor.db
+/pet_monitor.db
+/pushoverToken.txt
+/pushoverUserKey.txt
