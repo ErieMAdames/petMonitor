@@ -24,6 +24,7 @@ import time
 import libcamera
 import sqlite3
 import requests
+import schedule
 from datetime import datetime
 
 
@@ -80,7 +81,7 @@ ultrasonic = Ultrasonic()
 def send_notification(title, message):
     global pushover_token
     global pushover_user_key
-    response = requests.post(
+    requests.post(
         "https://api.pushover.net/1/messages.json",
         data={
             "token": pushover_token,
@@ -89,7 +90,6 @@ def send_notification(title, message):
             "title": title,
         }
     )
-    print(response.json())
 
 def create_tables():
     conn = sqlite3.connect(DB_PATH)
@@ -410,7 +410,7 @@ async def websocket_poop_handler(websocket):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img, detected = find_poop(img, shadow_brightness)
             if detected:
-                if not shadow_pooped:
+                if not shadow_pooped and shadow_poop_clean_time is None:
                     if shadow_poop_start_time is None:
                         shadow_poop_start_time = time.time()
                     elif time.time() - shadow_poop_start_time >= DETECTION_DURATION_THRESHOLD:
@@ -447,7 +447,7 @@ async def websocket_poop_handler(websocket):
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img, detected = find_poop(img, habichuela_brightness)
             if detected:
-                if not habichuela_pooped:
+                if not habichuela_pooped and habichuela_poop_clean_time is None:
                     if habichuela_poop_start_time is None:
                         habichuela_poop_start_time = time.time()
                     elif time.time() - habichuela_poop_start_time >= DETECTION_DURATION_THRESHOLD:
@@ -583,6 +583,34 @@ def audio_callback(indata, frames, time_, status):
             send_notification('Shadow is barking', "Shadow is barking at something, go check it out")
     else:
         bark_detected = False
+
+def run_scheduler_thread():
+    def run_scheduler():
+        while True:
+            schedule.run_pending()
+            time.sleep(1)
+    thread = Thread(target=run_scheduler)
+    thread.daemon = True
+    thread.start()
+    return thread
+def walk_notification():
+    send_notification('Time to take shadow for a walk', "Shadow needs to go for a walk")
+def shadow_grooming_notification():
+    send_notification('Its time to give Shadow a haircut', "Give shadow a haircut so his hair doesnt get matter")
+def habichuela_grooming_notification():
+    send_notification('Its time to give brush Habichuela', "Brush Habichuela so that you dont have to deal with so much fur")
+
+schedule.every().day.at("18:00").do(walk_notification)
+schedule.every().day.at("21:00").do(habichuela_grooming_notification)
+schedule.every(4).weeks.at("20:00").do(shadow_grooming_notification)
+
+def test_secont_notification():
+    send_notification('test_secont_notification', "test_secont_notification")
+def test_minute_notification():
+    send_notification('test_minute_notification', "test_minute_notification")
+schedule.every(3).seconds.do(test_secont_notification)
+schedule.every().minute.at(":23").do(test_minute_notification)
+
 create_tables()
 cam_settings = get_camera_settings()
 for cam_setting in cam_settings:
@@ -625,6 +653,7 @@ try:
     http_server_thread.start()
     run_websocket_server_in_thread(start_websocket_server())
     run_bark_detector_thread()
+    run_scheduler_thread()
     asyncio.run(start_websocket_server_poop_monitor())
 finally:
     picam2.stop_recording()
