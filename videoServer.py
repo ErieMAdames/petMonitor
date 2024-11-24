@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-
 import io
 import logging
 import socketserver
@@ -24,6 +23,7 @@ import base64
 import time
 import libcamera
 import sqlite3
+import requests
 from datetime import datetime
 
 
@@ -57,6 +57,12 @@ motor = Motor()
 PAGE = ''
 with open('index.html', 'r') as f:
     PAGE = f.read()
+pushover_user_key = ''
+with open('pushoverUserKey.txt', 'r') as f:
+    pushover_user_key = f.read().strip()
+pushover_token = ''
+with open('pushoverToken.txt', 'r') as f:
+    pushover_token = f.read().strip()
 
 servo0_angle_offset = 0
 servo1_angle_offset = -8
@@ -71,6 +77,19 @@ servo1.set_angle(servo1_angle_offset)
 shadow_brightness = 50
 habichuela_brightness = 50
 ultrasonic = Ultrasonic()
+def send_notification(title, message):
+    global pushover_token
+    global pushover_user_key
+    response = requests.post(
+        "https://api.pushover.net/1/messages.json",
+        data={
+            "token": pushover_token,
+            "user": pushover_user_key,
+            "message": message,
+            "title": title,
+        }
+    )
+    print(response.json())
 
 def create_tables():
     conn = sqlite3.connect(DB_PATH)
@@ -397,12 +416,14 @@ async def websocket_poop_handler(websocket):
                     elif time.time() - shadow_poop_start_time >= DETECTION_DURATION_THRESHOLD:
                         log_activity("shadow pooped")
                         shadow_pooped = True
+                        send_notification('Shadow pooped', 'Shadow pooped, clean up the puppy pad')
             else:
                 if shadow_pooped:
                     if shadow_poop_clean_time is None:
                         shadow_poop_clean_time = time.time()
                     elif time.time() - shadow_poop_clean_time >= DETECTION_DURATION_THRESHOLD:
                         log_activity("shadow poop cleaned")
+                        send_notification('Shadow poop cleaned', 'Good job on cleaning up')
                         shadow_poop_start_time = None
                         shadow_poop_clean_time = None
                         shadow_pooped = False
@@ -431,6 +452,7 @@ async def websocket_poop_handler(websocket):
                         habichuela_poop_start_time = time.time()
                     elif time.time() - habichuela_poop_start_time >= DETECTION_DURATION_THRESHOLD:
                         log_activity("habichuela pooped")
+                        send_notification('Habichuela pooped', 'Habichuela pooped, add some baking soda to the litterbox')
                         habichuela_pooped = True
             else:
                 if habichuela_pooped:
@@ -438,6 +460,7 @@ async def websocket_poop_handler(websocket):
                         habichuela_poop_clean_time = time.time()
                     elif time.time() - habichuela_poop_clean_time >= DETECTION_DURATION_THRESHOLD:
                         log_activity("habichuela poop cleaned")
+                        send_notification('Habichuela poop cleaned', "Good job on cleaning up, now it won't smell like cat turds")
                         habichuela_poop_start_time = None
                         habichuela_poop_clean_time = None
                         habichuela_pooped = False
@@ -460,12 +483,12 @@ async def websocket_poop_handler(websocket):
                 zoom_level_habichuela = 1 + (int(data.get('value', 0)) / 100)
                 save_camera_settings('habichuela', habichuela_brightness, zoom_level_habichuela)
             if data.get("slider", None) == 'main':
-                    zoom_level_main = 1 - (int(data.get('value', 0)) / 100)
-                    picam2.capture_metadata()
-                    new_size = [int(s * zoom_level_main) for s in size]
-                    offset = [(r - s) // 2 for r, s in zip(full_res, new_size)]
-                    picam2.set_controls({"ScalerCrop": offset + new_size})
-                    save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
+                zoom_level_main = 1 - (int(data.get('value', 0)) / 100)
+                picam2.capture_metadata()
+                new_size = [int(s * zoom_level_main) for s in size]
+                offset = [(r - s) // 2 for r, s in zip(full_res, new_size)]
+                picam2.set_controls({"ScalerCrop": offset + new_size})
+                save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
         if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
             water_out = water_level < 1000
@@ -473,8 +496,10 @@ async def websocket_poop_handler(websocket):
                 water_ran_out = True
                 water_refilled = False
                 log_water_event('out')
+                send_notification('Out of Water', "Out of water, please refill their bowl")
             if not water_out and not water_refilled:
                 log_water_event('refill')
+                send_notification('Water refilled', "They won't get dehydrated any more")
                 water_refilled = True
                 water_ran_out = False
             response = json.dumps({"water_level": water_level, 'water_out': water_out})
@@ -486,10 +511,12 @@ async def websocket_poop_handler(websocket):
                 food_ran_out = True
                 food_refilled = False
                 log_food_event('out')
+                send_notification('Out of Food', "Shadow is out of food, he needs to eat")
             if not food_out and not food_refilled:
-                log_food_event('refill')
                 food_refilled = True
                 food_ran_out = False
+                log_food_event('refill')
+                send_notification('Food refilled', "Shadow had food to eat now")
             response = json.dumps({"food_level": food_level, 'food_out': food_out})
             await websocket.send(response)
         if data.get("loudness", None) == 'loudness':
@@ -553,6 +580,7 @@ def audio_callback(indata, frames, time_, status):
             bark_detected = True
             last_bark_time = time.time()
             log_activity('bark detected', rms)
+            send_notification('Shadow is barking', "Shadow is barking at something, go check it out")
     else:
         bark_detected = False
 create_tables()
