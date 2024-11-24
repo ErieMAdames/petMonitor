@@ -112,10 +112,10 @@
             }
             if (data.state !== undefined) {
                 shadowBrightnessSlider.value = data.shadowBrightness;
-                habichuelaBrightnessSlider = data.habichuelaBrightness;
-                shadowZoomSlider = data.shadowZoom;
-                habichuelaZoomSlider = data.habichuelaZoom;
-                mainZoomSlider = data.mainZoom;
+                habichuelaBrightnessSlider.value = data.habichuelaBrightness;
+                shadowZoomSlider.value = data.shadowZoom;
+                habichuelaZoomSlider.value = data.habichuelaZoom;
+                mainZoomSlider.value = data.mainZoom;
             }
         };
         shadowBrightnessSlider.oninput = function() {
