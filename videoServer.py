@@ -22,7 +22,7 @@ import asyncio
 import websockets
 import base64
 import time
-
+from libcamera import controls
 
 SAMPLERATE = 16000  # Sampling rate (Hz)
 CHUNK_SIZE = 1024   # Number of audio frames per chunk
@@ -338,7 +338,6 @@ picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor_preview_config = picam2_shadow_monitor.create_preview_configuration()
 picam2_shadow_monitor.configure(picam2_shadow_monitor_preview_config)
 picam2_shadow_monitor.start()
-time.sleep(2)
 picam2_shadow_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
 picam2_shadow_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
 
@@ -346,7 +345,6 @@ picam2_habichuela_monitor = Picamera2(2)
 picam2_habichuela_monitor_preview_config = picam2_habichuela_monitor.create_preview_configuration()
 picam2_habichuela_monitor.configure(picam2_habichuela_monitor_preview_config)
 picam2_habichuela_monitor.start()
-time.sleep(2)
 picam2_habichuela_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
 picam2_habichuela_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
 try:
