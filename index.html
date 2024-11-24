@@ -82,7 +82,7 @@
                 currentLoudnessdB.innerHTML = Math.abs(20 * Math.log10(data.rms)).toFixed(2);
                 currentLoudnessRms.innerHTML = data.rms.toFixed(2);
             }
-            if (date.state !== undefined) {
+            if (data.state !== undefined) {
                 shadowBrightnessSlider.value = state.shadowBrightness;
                 habichuelaBrightnessSlider = state.habichuelaBrightness;
                 shadowZoomSlider = state.shadowZoom;
