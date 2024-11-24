@@ -202,6 +202,14 @@ def get_logs():
         'barks': barks,
     }
 
+def get_habichuela_num_poops():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(*) FROM activity_logs WHERE type='habichuela pooped'")
+    habichuela_num_poops = cursor.fetchone()[0]
+    conn.close()
+    return habichuela_num_poops
+
 def get_camera_settings():
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
@@ -454,6 +462,8 @@ async def websocket_poop_handler(websocket):
                         log_activity("habichuela pooped")
                         send_notification('Habichuela pooped', 'Habichuela pooped, add some baking soda to the litterbox')
                         habichuela_pooped = True
+                        habichuela_num_poops = get_habichuela_num_poops()
+                        print(habichuela_num_poops)
             else:
                 if habichuela_pooped:
                     if habichuela_poop_clean_time is None:
@@ -600,6 +610,8 @@ def shadow_grooming_notification():
 def habichuela_grooming_notification():
     send_notification('Its time to give brush Habichuela', "Brush Habichuela so that you dont have to deal with so much fur")
 
+habichuela_num_poops = get_habichuela_num_poops()
+print(habichuela_num_poops)
 schedule.every().day.at("18:00").do(walk_notification)
 schedule.every().day.at("21:00").do(habichuela_grooming_notification)
 schedule.every(30).days.at("20:00").do(shadow_grooming_notification)
