@@ -344,7 +344,9 @@ def audio_callback(indata, frames, time, status):
         bark_detected = False
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960), 'transform': libcamera.Transform(hflip=1)}))
+config = picam2.create_video_configuration(main={"size": (1280, 960)})
+config["transform"] = libcamera.Transform(hflip=1)
+picam2.configure(config)
 output = StreamingOutput()
 
 picam2.start_recording(JpegEncoder(), FileOutput(output))
