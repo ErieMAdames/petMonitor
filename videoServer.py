@@ -245,6 +245,8 @@ async def websocket_poop_handler(websocket):
         global habichuela_brightness
         global zoom_level_shadow
         global zoom_level_habichuela
+        global size
+        global full_res
         data = json.loads(message)
         if data.get("pet", None) == 'shadow':
             img = picam2_shadow_monitor.capture_array()
@@ -294,6 +296,11 @@ async def websocket_poop_handler(websocket):
                 zoom_level_shadow = 1 + (int(data.get('value', 0)) / 100)
             if data.get("slider", None) == 'habichuela':
                 zoom_level_habichuela = 1 + (int(data.get('value', 0)) / 100)
+            if data.get("slider, None") == 'main':
+                    picam2.capture_metadata()
+                    size = [int(s * 0.95) for s in size]
+                    offset = [(r - s) // 2 for r, s in zip(full_res, size)]
+                    picam2.set_controls({"ScalerCrop": offset + size})
         if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
             response = json.dumps({"water_level": water_level})
@@ -347,6 +354,8 @@ picam2 = Picamera2()
 config = picam2.create_video_configuration(main={"size": (1280, 960)})
 config["transform"] = libcamera.Transform(vflip=1)
 picam2.configure(config)
+size = picam2.capture_metadata()['ScalerCrop'][2:]
+full_res = picam2.camera_properties['PixelArraySize']
 output = StreamingOutput()
 
 picam2.start_recording(JpegEncoder(), FileOutput(output))

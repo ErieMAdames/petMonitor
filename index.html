@@ -115,6 +115,9 @@
         document.querySelector('#habichuela-zoom-slider').oninput = function() {
             ws_images.send(JSON.stringify({ action: "zoom", slider: "habichuela", value: this.value }));
         }
+        document.querySelector('#main-zoom-slider').oninput = function() {
+            ws_images.send(JSON.stringify({ action: "zoom", slider: "main", value: this.value }));
+        }
     }
     function handleKey(event) {
         const key = event.key.toLowerCase();
@@ -155,6 +158,7 @@
     img {
         border: 1px solid gray;
         border-radius: 16px;
+        pointer-events: none;
     }
     .main-cam-container {
         position: relative;
