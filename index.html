@@ -61,6 +61,17 @@
         const shadowZoomSlider = document.querySelector('#shadow-zoom-slider');
         const habichuelaZoomSlider = document.querySelector('#habichuela-zoom-slider');
         const mainZoomSlider = document.querySelector('#main-zoom-slider');
+
+        const lastFoodRunoutTime = document.querySelector('.last-food-runout-time');
+        const lastFoodRefillTime = document.querySelector('.last-food-refill-time');
+        const lastWaterRunoutTime = document.querySelector('.last-water-runout-time');
+        const lastWaterRefillTime = document.querySelector('.last-water-refill-time');
+        const lastShadowPoopTime = document.querySelector('.last-shadow-poop-time');
+        const lastShadowPoopCleanupTime = document.querySelector('.last-shadow-poop-cleanup-time');
+        const lastHabichuelaPoopTime = document.querySelector('.last-habichuela-poop-time');
+        const lastHabichuelaPoopCleanupTime = document.querySelector('.last-habichuela-poop-cleanup-time');
+        const treatsLogs = document.querySelector('.treats-logs');
+        const barksLogs = document.querySelector('.barks-logs');
         ws_images.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.image && data.pet) {
@@ -125,7 +136,46 @@
                 mainZoomSlider.value = data.state.mainZoom;
             }
             if (data.logs !== undefined) {
-                console.log(data.logs);
+                if (data.logs.food_out.length) {
+                    lastFoodRunoutTime.innerHTML = new Date(data.logs.food_out[0]).toLocaleString();
+                }
+                if (data.logs.food_refilled.length) {
+                    lastFoodRefillTime.innerHTML = new Date(data.logs.food_refilled[0]).toLocaleString();
+                }
+                if (data.logs.water_out.length) {
+                    lastWaterRunoutTime.innerHTML = new Date(data.logs.water_out[0]).toLocaleString();
+                }
+                if (data.logs.water_refilled.length) {
+                    lastWaterRefillTime.innerHTML = new Date(data.logs.water_refilled[0]).toLocaleString();
+                }
+                if (data.logs.shadow_pooped.length) {
+                    lastShadowPoopTime.innerHTML = new Date(data.logs.shadow_pooped[0]).toLocaleString();
+                }
+                if (data.logs.shadow_poop_cleaned.length) {
+                    lastShadowPoopCleanupTime.innerHTML = new Date(data.logs.shadow_poop_cleaned[0]).toLocaleString();
+                }
+                if (data.logs.habichuela_pooped.length) {
+                    lastHabichuelaPoopTime.innerHTML = new Date(data.logs.habichuela_pooped[0]).toLocaleString();
+                }
+                if (data.logs.habichuela_poop_cleaned.length) {
+                    lastHabichuelaPoopCleanupTime.innerHTML = new Date(data.logs.habichuela_poop_cleaned[0]).toLocaleString();
+                }
+                if (data.logs.treats.length) {
+                    treatsLogs.innerHTML = '';
+                    data.logs.treats.forEach(element => {
+                        const li = document.createElement("li");
+                        li.innerHTML = Date(element[0]).toLocaleString();
+                        treatsLogs.appendChild(li);
+                    });
+                }
+                if (data.logs.barks.length) {
+                    barksLogs.innerHTML = '';
+                    data.logs.barks.forEach(element => {
+                        const li = document.createElement("li");
+                        li.innerHTML = Date(element[0]).toLocaleString();
+                        barksLogs.appendChild(li);
+                    });
+                }
             }
         };
         shadowBrightnessSlider.oninput = function() {
@@ -254,11 +304,6 @@
     .food-level-message.refill {
         animation: backgroundFlash 2s linear infinite;
     }
-    .water-food-level-container {
-        width: 80vw;
-        margin: 0 auto;
-        margin-top: 80px;
-    }
     .slider-container {
         display: flex;
         flex-direction: column;
@@ -280,6 +325,16 @@
         left: 50%;
         width: 80%;
         transform: translate(-50%, 0);
+    }
+    .logs-container {
+        display: flex;
+        justify-content: space-between;
+        width: 80vw;
+        margin: 80px auto;
+        margin-top: 80px;
+    }
+    .evet-logs {
+        width: 20vw;
     }
 </style>
 </head>
@@ -340,7 +395,10 @@
                 </p>
             </div>
             <div class="event-logs">
+                <h2>Event Logs</h2>
+                <p class="last-food-refill">Last food refill time <span class="last-food-refill-time"></span></p>
                 <p class="last-food-runout">Last food runout time <span class="last-food-runout-time"></span></p>
+                <p class="last-water-refill">Last water refill time <span class="last-water-refill-time"></span></p>
                 <p class="last-water-runout">Last water runout time <span class="last-water-runout-time"></span></p>
                 <p class="last-shadow-poop">Last Shadow poop time <span class="last-shadow-poop-time"></span></p>
                 <p class="last-shadow-poop-cleanup">Last Shadow poop cleanup time <span class="last-shadow-poop-cleanup-time"></span></p>
@@ -348,8 +406,13 @@
                 <p class="last-habichuela-poop-cleanup">Last Habichuela poop cleanup time <span class="last-habichuela-poop-cleanup-time"></span></p>
                 <div class="treats">
                     <p>Time last 5 treats dispensed</p>
-                    <div class="treats-logs">
-                    </div>
+                    <ul class="treats-logs">
+                    </ul>
+                </div>
+                <div class="barks">
+                    <p>Last 5 barks time</p>
+                    <ul class="barks-logs">
+                    </ul>
                 </div>
             </div>
         </div>
