@@ -8,6 +8,7 @@ from threading import Condition, Thread
 import json
 import cv2
 import numpy as np
+import sounddevice as sd
 from servo import Servo
 from pwm import PWM
 from adc import ADC
@@ -22,6 +23,12 @@ import websockets
 import base64
 import time
 
+
+SAMPLERATE = 16000  # Sampling rate (Hz)
+CHUNK_SIZE = 1024   # Number of audio frames per chunk
+LOUDNESS_THRESHOLD = 0.5  # RMS value threshold for loud sounds
+DEVICE_INDEX = 1  # Replace with your device index, or leave None for default
+CHANNELS = 2  # Use 2 if your microphone supports only stereo
 
 button = Button(16)
 counter = 0
@@ -271,11 +278,32 @@ def run_websocket_server_in_thread(coroutine):
         loop = asyncio.new_event_loop()
         asyncio.set_event_loop(loop)
         loop.run_until_complete(coroutine)
-    
     thread = Thread(target=run_loop)
     thread.daemon = True
     thread.start()
     return thread
+def run_bark_detector_thread():
+    def run_loop():
+        with sd.InputStream(samplerate=SAMPLERATE, channels=CHANNELS, device=DEVICE_INDEX, callback=audio_callback):
+            while True:
+                sd.sleep(100)
+    thread = Thread(target=run_loop)
+    thread.daemon = True
+    thread.start()
+    return thread
+
+
+def audio_callback(indata, frames, time, status):
+    """Callback to process audio input."""
+    if status:
+        print(f"Audio stream status: {status}")
+    # Calculate the RMS for the first channel only
+    rms = (np.sqrt(np.mean(indata[:, 0]**2)) + np.sqrt(np.mean(indata[:, 1]**2))) / 2
+    
+    if rms > LOUDNESS_THRESHOLD:
+        print(f"RMS: {rms:.4f}")
+        print("Loud sound detected!")
+
 
 picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
@@ -292,8 +320,8 @@ try:
     http_server_thread = Thread(target=server.serve_forever)
     http_server_thread.daemon = True
     http_server_thread.start()
-
     run_websocket_server_in_thread(start_websocket_server())
+    run_bark_detector_thread()
     asyncio.run(start_websocket_server_poop_monitor())
 finally:
     picam2.stop_recording()
