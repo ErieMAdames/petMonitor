@@ -13,10 +13,10 @@ def audio_callback(indata, frames, time, status):
     if status:
         print(f"Audio stream status: {status}")
     # Calculate the RMS for the first channel only
-    rms = np.sqrt(np.mean(indata[:, 0]**2))
+    rms = (np.sqrt(np.mean(indata[:, 0]**2)) + np.sqrt(np.mean(indata[:, 1]**2))) / 2
     
-    print(f"RMS: {rms:.4f}")
     if rms > LOUDNESS_THRESHOLD:
+        print(f"RMS: {rms:.4f}")
         print("Loud sound detected!")
 
 def main():
