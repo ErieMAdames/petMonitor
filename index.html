@@ -112,11 +112,11 @@
             }
             if (data.state !== undefined) {
                 console.log(data);
-                shadowBrightnessSlider.value = data.shadowBrightness;
-                habichuelaBrightnessSlider.value = data.habichuelaBrightness;
-                shadowZoomSlider.value = data.shadowZoom;
-                habichuelaZoomSlider.value = data.habichuelaZoom;
-                mainZoomSlider.value = data.mainZoom;
+                shadowBrightnessSlider.value = data.state.shadowBrightness;
+                habichuelaBrightnessSlider.value = data.state.habichuelaBrightness;
+                shadowZoomSlider.value = data.state.shadowZoom;
+                habichuelaZoomSlider.value = data.state.habichuelaZoom;
+                mainZoomSlider.value = data.state.mainZoom;
             }
         };
         shadowBrightnessSlider.oninput = function() {
