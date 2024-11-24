@@ -19,6 +19,8 @@
         const habichuelaPoopDetectedWarning = document.querySelector('.habichuela-poop-capture-container .detected');
         const waterLevelMessage = document.querySelector('.water-level-message');
         const foodLevelMessage = document.querySelector('.food-level-message');
+        const shadowLoudnessLevel = document.querySelector('.shadow-loudness-level');
+        const currentLoudnessLevel = document.querySelector('.current-loudness-level');
         ws_images.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.image && data.pet) {
@@ -63,6 +65,12 @@
                     foodLevelMessage.classList.remove('refill');
                 }
             }
+            if (data.bark_detected !== undefined) {
+                if(data.bark_detected) {
+                    shadowLoudnessLevel.innerHTML = 'barking'
+                }
+                currentLoudnessLevel.innerHTML = 20 * Math.log10(data.rms);
+            }
         };
         setInterval(
             function() {
@@ -80,6 +88,12 @@
         setInterval(
             function() {
                 ws_images.send(JSON.stringify({ food_level: "food_level" }));
+            },
+            500
+        );
+        setInterval(
+            function() {
+                ws_images.send(JSON.stringify({ bark_detected: "bark_detected" }));
             },
             500
         );
@@ -240,6 +254,10 @@
             </p>
             <p class="food-level-message">
                 Food level normal
+            </p>
+            <p class="dog-level-message">
+                Shadow is <span class="shadow-loudness-level">quiet</span><br>
+                Current loudness : <span class="current-loudness-level">quiet</span>
             </p>
         </div>
     </main>

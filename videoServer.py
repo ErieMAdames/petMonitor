@@ -29,6 +29,8 @@ CHUNK_SIZE = 1024   # Number of audio frames per chunk
 LOUDNESS_THRESHOLD = 0.5  # RMS value threshold for loud sounds
 DEVICE_INDEX = 1  # Replace with your device index, or leave None for default
 CHANNELS = 2  # Use 2 if your microphone supports only stereo
+bark_detected = False
+rms = 0
 
 button = Button(16)
 counter = 0
@@ -267,6 +269,11 @@ async def websocket_poop_handler(websocket):
             food_level = ultrasonic.get_distance()
             response = json.dumps({"food_level": food_level})
             await websocket.send(response)
+        if data.get("loudness", None) == 'loudness':
+            global rms
+            global bark_detected
+            response = json.dumps({'bark_detected': bark_detected, "rms": rms})
+            await websocket.send(response)
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
         await asyncio.Future()  # Run forever
@@ -295,14 +302,13 @@ def run_bark_detector_thread():
 
 def audio_callback(indata, frames, time, status):
     """Callback to process audio input."""
-    if status:
-        print(f"Audio stream status: {status}")
-    # Calculate the RMS for the first channel only
+    global bark_detected
+    global rms
     rms = (np.sqrt(np.mean(indata[:, 0]**2)) + np.sqrt(np.mean(indata[:, 1]**2))) / 2
-    
     if rms > LOUDNESS_THRESHOLD:
-        print(f"RMS: {rms:.4f}")
-        print("Loud sound detected!")
+        bark_detected = True
+    else:
+        bark_detected = False
 
 
 picam2 = Picamera2()
