@@ -604,13 +604,6 @@ schedule.every().day.at("18:00").do(walk_notification)
 schedule.every().day.at("21:00").do(habichuela_grooming_notification)
 schedule.every(30).days.at("20:00").do(shadow_grooming_notification)
 
-def test_secont_notification():
-    send_notification('test_secont_notification', "test_secont_notification")
-def test_minute_notification():
-    send_notification('test_minute_notification', "test_minute_notification")
-schedule.every(3).seconds.do(test_secont_notification)
-schedule.every().minute.at(":23").do(test_minute_notification)
-
 create_tables()
 cam_settings = get_camera_settings()
 for cam_setting in cam_settings:
