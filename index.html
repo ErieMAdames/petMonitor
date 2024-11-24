@@ -111,11 +111,11 @@
                 currentLoudnessRms.innerHTML = data.rms.toFixed(2);
             }
             if (data.state !== undefined) {
-                shadowBrightnessSlider.value = state.shadowBrightness;
-                habichuelaBrightnessSlider = state.habichuelaBrightness;
-                shadowZoomSlider = state.shadowZoom;
-                habichuelaZoomSlider = state.habichuelaZoom;
-                mainZoomSlider = state.mainZoom;
+                shadowBrightnessSlider.value = data.shadowBrightness;
+                habichuelaBrightnessSlider = data.habichuelaBrightness;
+                shadowZoomSlider = data.shadowZoom;
+                habichuelaZoomSlider = data.habichuelaZoom;
+                mainZoomSlider = data.mainZoom;
             }
         };
         shadowBrightnessSlider.oninput = function() {
