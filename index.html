@@ -68,8 +68,12 @@
             if (data.bark_detected !== undefined) {
                 if(data.bark_detected) {
                     shadowLoudnessLevel.innerHTML = 'barking'
+                    shadowLoudnessLevel.style.color = 'red';
+                } else {
+                    shadowLoudnessLevel.innerHTML = 'quiet'
+                    shadowLoudnessLevel.style.color = 'green';
                 }
-                currentLoudnessLevel.innerHTML = Math.abs(20 * Math.log10(data.rms));
+                currentLoudnessLevel.innerHTML = Math.abs(20 * Math.log10(data.rms)).toFixed(2);
             }
         };
         setInterval(
@@ -258,7 +262,7 @@
             </p>
             <p class="dog-level-message">
                 Shadow is <span class="shadow-loudness-level">quiet</span><br>
-                Current loudness : <span class="current-loudness-level">quiet</span>
+                Current loudness : <span class="current-loudness-level"></span>db (not accurate)
             </p>
         </div>
     </main>
