@@ -164,7 +164,7 @@
                     treatsLogs.innerHTML = '';
                     data.logs.treats.forEach(element => {
                         const li = document.createElement("li");
-                        li.innerHTML = Date(element[0]).toLocaleString();
+                        li.innerHTML = new Date(element[0]).toLocaleString();
                         treatsLogs.appendChild(li);
                     });
                 }
@@ -172,7 +172,7 @@
                     barksLogs.innerHTML = '';
                     data.logs.barks.forEach(element => {
                         const li = document.createElement("li");
-                        li.innerHTML = Date(element[0]).toLocaleString();
+                        li.innerHTML = new Date(element[0]).toLocaleString();
                         barksLogs.appendChild(li);
                     });
                 }
