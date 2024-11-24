@@ -20,7 +20,8 @@
         const waterLevelMessage = document.querySelector('.water-level-message');
         const foodLevelMessage = document.querySelector('.food-level-message');
         const shadowLoudnessLevel = document.querySelector('.shadow-loudness-level');
-        const currentLoudnessLevel = document.querySelector('.current-loudness-level');
+        const currentLoudnessdB = document.querySelector('.current-loudness-db');
+        const currentLoudnessRms = document.querySelector('.current-loudness-rms');
         ws_images.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.image && data.pet) {
@@ -73,7 +74,8 @@
                     shadowLoudnessLevel.innerHTML = 'quiet'
                     shadowLoudnessLevel.style.color = 'green';
                 }
-                currentLoudnessLevel.innerHTML = Math.abs(20 * Math.log10(data.rms)).toFixed(2);
+                currentLoudnessdB.innerHTML = Math.abs(20 * Math.log10(data.rms)).toFixed(2);
+                currentLoudnessRms.innerHTML = data.rms.toFixed(2);
             }
         };
         setInterval(
@@ -262,7 +264,7 @@
             </p>
             <p class="dog-level-message">
                 Shadow is <span class="shadow-loudness-level">quiet</span><br>
-                Current loudness : <span class="current-loudness-level"></span>db (not accurate)
+                Current loudness : <span class="current-loudness-db"></span>db | <span class="current-loudness-rms"></span> rms (not accurate)<br>
             </p>
         </div>
     </main>
