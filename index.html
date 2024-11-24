@@ -11,7 +11,35 @@
         ws_images.binaryType = "arraybuffer";
         ws.onopen = () => console.log("WebSocket connection established");
         ws.onclose = () => console.log("WebSocket connection closed");
-        ws_images.onopen = () => console.log("WebSocket for Shadow & Habichuela connection established");
+        ws_images.onopen = () => {
+            console.log("WebSocket for Shadow & Habichuela connection established");
+            setInterval(
+                function() {
+                    ws_images.send(JSON.stringify({ pet: "shadow" }));
+                    ws_images.send(JSON.stringify({ pet: "habichuela" }));
+                },
+                500
+            );
+            setInterval(
+                function() {
+                    ws_images.send(JSON.stringify({ water_level: "water_level" }));
+                },
+                500
+            );
+            setInterval(
+                function() {
+                    ws_images.send(JSON.stringify({ food_level: "food_level" }));
+                },
+                500
+            );
+            setInterval(
+                function() {
+                    ws_images.send(JSON.stringify({ loudness: "loudness" }));
+                },
+                50
+            );
+            ws_images.send(JSON.stringify({ state: "state" }));
+        };
         ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
         const shadowPoopCapture = document.querySelector('.shadow-poop-capture');
         const shadowPoopDetectedWarning = document.querySelector('.shadow-poop-capture-container .detected');
@@ -90,32 +118,6 @@
                 mainZoomSlider = state.mainZoom;
             }
         };
-        setInterval(
-            function() {
-                ws_images.send(JSON.stringify({ pet: "shadow" }));
-                ws_images.send(JSON.stringify({ pet: "habichuela" }));
-            },
-            500
-        );
-        setInterval(
-            function() {
-                ws_images.send(JSON.stringify({ water_level: "water_level" }));
-            },
-            500
-        );
-        setInterval(
-            function() {
-                ws_images.send(JSON.stringify({ food_level: "food_level" }));
-            },
-            500
-        );
-        setInterval(
-            function() {
-                ws_images.send(JSON.stringify({ loudness: "loudness" }));
-            },
-            50
-        );
-        ws_images.send(JSON.stringify({ state: "state" }));
         shadowBrightnessSlider.oninput = function() {
             ws_images.send(JSON.stringify({ action: "brightness", slider: "shadow", value: this.value }));
         }
