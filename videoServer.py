@@ -533,7 +533,7 @@ def run_bark_detector_thread():
     def run_loop():
         with sd.InputStream(samplerate=SAMPLERATE, channels=CHANNELS, device=DEVICE_INDEX, callback=audio_callback):
             while True:
-                sd.sleep(50)
+                sd.sleep(500)
     thread = Thread(target=run_loop)
     thread.daemon = True
     thread.start()
