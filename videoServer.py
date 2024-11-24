@@ -356,7 +356,9 @@ config["transform"] = libcamera.Transform(vflip=1)
 picam2.configure(config)
 time.sleep(2)
 size = picam2.capture_metadata()['ScalerCrop'][2:]
+print(size)
 full_res = picam2.camera_properties['PixelArraySize']
+print(full_res)
 output = StreamingOutput()
 
 picam2.start_recording(JpegEncoder(), FileOutput(output))
