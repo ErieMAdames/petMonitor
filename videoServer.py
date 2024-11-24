@@ -101,8 +101,7 @@ def create_tables():
     """)
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS camera_settings (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            camera_id TEXT NOT NULL,
+            camera_id TEXT PRIMARY KEY ,
             brightness REAL NOT NULL,
             zoom REAL NOT NULL,
             x REAL, -- Optional, for main cam position
