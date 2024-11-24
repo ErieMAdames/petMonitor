@@ -354,15 +354,15 @@ picam2 = Picamera2()
 config = picam2.create_video_configuration(main={"size": (1280, 960)})
 config["transform"] = libcamera.Transform(vflip=1)
 picam2.configure(config)
+output = StreamingOutput()
+
+picam2.start_recording(JpegEncoder(), FileOutput(output))
 time.sleep(2)
 print('getting size')
 size = picam2.capture_metadata()['ScalerCrop'][2:]
 print(size)
 full_res = picam2.camera_properties['PixelArraySize']
 print(full_res)
-output = StreamingOutput()
-
-picam2.start_recording(JpegEncoder(), FileOutput(output))
 
 picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
