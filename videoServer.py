@@ -479,7 +479,7 @@ async def websocket_poop_handler(websocket):
                     state['habichuelaZoom'] = cam_setting[2]
                     state['habichuelaBrightness'] = cam_setting[1]
             response = json.dumps({'state': state})
-            await websocket.send(state)
+            await websocket.send(response)
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
         await asyncio.Future()  # Run forever
