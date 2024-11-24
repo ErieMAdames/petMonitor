@@ -245,7 +245,19 @@ async def websocket_poop_handler(websocket):
         global habichuela_brightness
         data = json.loads(message)
         if data.get("pet", None) == 'shadow':
+            global zoom_level_shadow
             img = picam2_shadow_monitor.capture_array()
+            if zoom_level_shadow > 1:
+                height, width = img.shape[:2]
+                new_width = int(width / zoom_level_shadow)
+                new_height = int(height / zoom_level_shadow)
+                x1 = (width - new_width) // 2
+                y1 = (height - new_height) // 2
+                x2 = x1 + new_width
+                y2 = y1 + new_height
+                # Crop and resize the image
+                img = img[y1:y2, x1:x2]
+                img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img, detected = find_poop(img, shadow_brightness)
             _, jpeg = cv2.imencode('.jpg', img)
@@ -253,7 +265,19 @@ async def websocket_poop_handler(websocket):
             response = json.dumps({"pet": "shadow", "image": img_base64, "detected": detected})
             await websocket.send(response)
         if data.get("pet", None) == 'habichuela':
+            global zoom_level_habichuela
             img = picam2_habichuela_monitor.capture_array()
+            if zoom_level_habichuela > 1:
+                height, width = img.shape[:2]
+                new_width = int(width / zoom_level_habichuela)
+                new_height = int(height / zoom_level_habichuela)
+                x1 = (width - new_width) // 2
+                y1 = (height - new_height) // 2
+                x2 = x1 + new_width
+                y2 = y1 + new_height
+                # Crop and resize the image
+                img = img[y1:y2, x1:x2]
+                img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img, detected = find_poop(img, habichuela_brightness)
             _, jpeg = cv2.imencode('.jpg', img)
@@ -267,19 +291,11 @@ async def websocket_poop_handler(websocket):
                 habichuela_brightness = int(data.get('value', 50))
         if data.get("action", None) == 'zoom':
             if data.get("slider", None) == 'shadow':
-                global picam2_shadow_monitor_size, picam2_shadow_monitor_full_res
-                zoom_level_shadow = 1 + (3 * int(data.get('value', 0)) / 100)
-                picam2_shadow_monitor.capture_metadata()
-                picam2_shadow_monitor_size = [int(s * 0.95) for s in picam2_shadow_monitor_size]
-                offset = [(r - s) // 2 for r, s in zip(picam2_shadow_monitor_full_res, picam2_shadow_monitor_size)]
-                picam2_shadow_monitor.set_controls({"ScalerCrop": offset + picam2_shadow_monitor_size})
+                global zoom_level_shadow
+                zoom_level_shadow = 1 + (int(data.get('value', 0)) / 100)
             if data.get("slider", None) == 'habichuela':
-                global picam2_habichuela_monitor_size, picam2_habichuela_monitor_full_res
-                zoom_level_habichuela = 1 + (3 * int(data.get('value', 0)) / 100)
-                picam2_habichuela_monitor.capture_metadata()
-                picam2_habichuela_monitor_size = [int(s * 0.95) for s in picam2_habichuela_monitor_size]
-                offset = [(r - s) // 2 for r, s in zip(picam2_habichuela_monitor_full_res, picam2_habichuela_monitor_size)]
-                picam2_habichuela_monitor.set_controls({"ScalerCrop": offset + picam2_habichuela_monitor_size})
+                global zoom_level_habichuela
+                zoom_level_habichuela = 1 + (int(data.get('value', 0)) / 100)
         if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
             response = json.dumps({"water_level": water_level})
@@ -334,20 +350,12 @@ picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
 output = StreamingOutput()
 
 picam2.start_recording(JpegEncoder(), FileOutput(output))
-print(picam2.capture_metadata())
+
 picam2_shadow_monitor = Picamera2(1)
-picam2_shadow_monitor_preview_config = picam2_shadow_monitor.create_preview_configuration()
-picam2_shadow_monitor.configure(picam2_shadow_monitor_preview_config)
 picam2_shadow_monitor.start()
-picam2_shadow_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
-picam2_shadow_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
 
 picam2_habichuela_monitor = Picamera2(2)
-picam2_habichuela_monitor_preview_config = picam2_habichuela_monitor.create_preview_configuration()
-picam2_habichuela_monitor.configure(picam2_habichuela_monitor_preview_config)
 picam2_habichuela_monitor.start()
-picam2_habichuela_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
-picam2_habichuela_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
