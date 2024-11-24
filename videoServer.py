@@ -345,7 +345,7 @@ def audio_callback(indata, frames, time, status):
 
 picam2 = Picamera2()
 config = picam2.create_video_configuration(main={"size": (1280, 960)})
-config["transform"] = libcamera.Transform(hflip=1)
+config["transform"] = libcamera.Transform(vflip=1)
 picam2.configure(config)
 output = StreamingOutput()
 
