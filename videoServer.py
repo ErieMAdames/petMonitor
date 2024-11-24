@@ -266,13 +266,20 @@ async def websocket_poop_handler(websocket):
             if data.get("slider", None) == 'habichuela':
                 habichuela_brightness = int(data.get('value', 50))
         if data.get("action", None) == 'zoom':
-            global zoom_level_main, zoom_level_shadow, zoom_level_habichuela
             if data.get("slider", None) == 'shadow':
+                global picam2_shadow_monitor_size, picam2_shadow_monitor_full_res
                 zoom_level_shadow = 1 + (3 * int(data.get('value', 0)) / 100)
-                set_zoom(picam2_shadow_monitor, zoom_level_shadow)
+                picam2_shadow_monitor.capture_metadata()
+                picam2_shadow_monitor_size = [int(s * 0.95) for s in picam2_shadow_monitor_size]
+                offset = [(r - s) // 2 for r, s in zip(picam2_shadow_monitor_full_res, picam2_shadow_monitor_size)]
+                picam2_shadow_monitor.set_controls({"ScalerCrop": offset + picam2_shadow_monitor_size})
             if data.get("slider", None) == 'habichuela':
+                global picam2_habichuela_monitor_size, picam2_habichuela_monitor_full_res
                 zoom_level_habichuela = 1 + (3 * int(data.get('value', 0)) / 100)
-                set_zoom(picam2_habichuela_monitor, zoom_level_habichuela)
+                picam2_habichuela_monitor.capture_metadata()
+                picam2_habichuela_monitor_size = [int(s * 0.95) for s in picam2_habichuela_monitor_size]
+                offset = [(r - s) // 2 for r, s in zip(picam2_habichuela_monitor_full_res, picam2_habichuela_monitor_size)]
+                picam2_habichuela_monitor.set_controls({"ScalerCrop": offset + picam2_habichuela_monitor_size})
         if data.get("water_level", None) == 'water_level':
             water_level = water_monitor.read()
             response = json.dumps({"water_level": water_level})
@@ -320,21 +327,7 @@ def audio_callback(indata, frames, time, status):
     if rms > LOUDNESS_THRESHOLD:
         bark_detected = True
     else:
-        bark_detected = False
-
-def set_zoom(camera, zoom_level):
-    """
-    Apply digital zoom to the specified camera.
-    Zoom level must be between 1.0 (no zoom) and a maximum defined by the resolution.
-    """
-    if zoom_level < 1.0:
-        zoom_level = 1.0
-    width, height = camera.sensor_resolution
-    new_width = int(width / zoom_level)
-    new_height = int(height / zoom_level)
-    left = (width - new_width) // 2
-    top = (height - new_height) // 2
-    camera.set_controls({"ScalerCrop": (left, top, new_width, new_height)})
+        bark_detected = False)
 
 picam2 = Picamera2()
 picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
@@ -343,8 +336,13 @@ output = StreamingOutput()
 picam2.start_recording(JpegEncoder(), FileOutput(output))
 picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
+picam2_shadow_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
+picam2_shadow_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
+
 picam2_habichuela_monitor = Picamera2(2)
 picam2_habichuela_monitor.start()
+picam2_habichuela_monitor_size = picam2_shadow_monitor.capture_metadata()['ScalerCrop'][2:]
+picam2_habichuela_monitor_full_res = picam2_shadow_monitor.camera_properties['PixelArraySize']
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
