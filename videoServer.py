@@ -278,7 +278,6 @@ def increase_brightness(img, value=30):
     img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
     return img
 def find_poop(image, brightness = 50):
-    print(brightness)
     image = increase_brightness(image, brightness)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, thresholded = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
@@ -528,10 +527,10 @@ for cam_setting in cam_settings:
         servo1.set_angle(servo1_angle + servo1_angle_offset)
     if cam_setting[0] == 'shadow':
         zoom_level_shadow = cam_setting[2]
-        shadow_brightness = cam_setting[1]
+        shadow_brightness = int(cam_setting[1])
     if cam_setting[0] == 'habichuela':
         zoom_level_habichuela = cam_setting[2]
-        habichuela_brightness = cam_setting[1]
+        habichuela_brightness = int(cam_setting[1])
     
 picam2 = Picamera2()
 config = picam2.create_video_configuration(main={"size": (1280, 960)})
