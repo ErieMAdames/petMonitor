@@ -124,6 +124,9 @@
                 habichuelaZoomSlider.value = data.state.habichuelaZoom;
                 mainZoomSlider.value = data.state.mainZoom;
             }
+            if (data.logs !== undefined) {
+                console.log(data.logs);
+            }
         };
         shadowBrightnessSlider.oninput = function() {
             ws_images.send(JSON.stringify({ action: "brightness", slider: "shadow", value: this.value }));

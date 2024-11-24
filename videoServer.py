@@ -512,7 +512,8 @@ async def websocket_poop_handler(websocket):
             response = json.dumps({'state': state})
             await websocket.send(response)
         if data.get('logs', None) == 'logs':
-            print(get_logs())
+            response = json.dumps({'logs': get_logs()})
+            await websocket.send(response)
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
         await asyncio.Future()  # Run forever
