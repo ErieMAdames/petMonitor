@@ -296,7 +296,7 @@ async def websocket_poop_handler(websocket):
                 zoom_level_shadow = 1 + (int(data.get('value', 0)) / 100)
             if data.get("slider", None) == 'habichuela':
                 zoom_level_habichuela = 1 + (int(data.get('value', 0)) / 100)
-            if data.get("slider, None") == 'main':
+            if data.get("slider", None) == 'main':
                     picam2.capture_metadata()
                     size = [int(s * 0.95) for s in size]
                     offset = [(r - s) // 2 for r, s in zip(full_res, size)]
@@ -357,12 +357,8 @@ picam2.configure(config)
 output = StreamingOutput()
 
 picam2.start_recording(JpegEncoder(), FileOutput(output))
-time.sleep(2)
-print('getting size')
 size = picam2.capture_metadata()['ScalerCrop'][2:]
-print(size)
 full_res = picam2.camera_properties['PixelArraySize']
-print(full_res)
 
 picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
