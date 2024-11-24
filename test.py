@@ -1,35 +1,38 @@
-import sounddevice as sd
-import numpy as np
+import pyaudio
+import time
+from math import log10
+import audioop  
 
-# Parameters
-SAMPLERATE = 16000  # Sampling rate (Hz)
-CHUNK_SIZE = 1024   # Number of audio frames per chunk
-LOUDNESS_THRESHOLD = 0.5  # RMS value threshold for loud sounds
-DEVICE_INDEX = 1  # Replace with your device index, or leave None for default
-CHANNELS = 2  # Use 2 if your microphone supports only stereo
+p = pyaudio.PyAudio()
+WIDTH = 2
+RATE = int(p.get_default_input_device_info()['defaultSampleRate'])
+DEVICE = p.get_default_input_device_info()['index']
+rms = 1
+print(p.get_default_input_device_info())
 
-def audio_callback(indata, frames, time, status):
-    """Callback to process audio input."""
-    if status:
-        print(f"Audio stream status: {status}")
-    # Calculate the RMS for the first channel only
-    rms = (np.sqrt(np.mean(indata[:, 0]**2)) + np.sqrt(np.mean(indata[:, 1]**2))) / 2
-    
-    if rms > LOUDNESS_THRESHOLD:
-        print(f"RMS: {rms:.4f}")
-        print("Loud sound detected!")
+def callback(in_data, frame_count, time_info, status):
+    global rms
+    rms = audioop.rms(in_data, WIDTH) / 32767
+    return in_data, pyaudio.paContinue
 
-def main():
-    """Main function for loud sound detection."""
-    print("Starting loud sound detection. Press Ctrl+C to stop.")
-    try:
-        with sd.InputStream(samplerate=SAMPLERATE, channels=CHANNELS, device=DEVICE_INDEX, callback=audio_callback):
-            while True:
-                sd.sleep(100)
-    except KeyboardInterrupt:
-        print("\nStopping loud sound detection.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
 
-if __name__ == "__main__":
-    main()
+stream = p.open(format=p.get_format_from_width(WIDTH),
+                input_device_index=DEVICE,
+                channels=1,
+                rate=RATE,
+                input=True,
+                output=False,
+                stream_callback=callback)
+
+stream.start_stream()
+
+while stream.is_active(): 
+    db = 20 * log10(rms)
+    print(f"RMS: {rms} DB: {db}") 
+    # refresh every 0.3 seconds 
+    time.sleep(0.3)
+
+stream.stop_stream()
+stream.close()
+
+p.terminate()
