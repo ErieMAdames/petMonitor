@@ -103,11 +103,17 @@
             },
             50
         );
-        document.querySelector('#shadow-slider').oninput = function() {
-            ws_images.send(JSON.stringify({ slider: "shadow", value: this.value }));
+        document.querySelector('#shadow-brightness-slider').oninput = function() {
+            ws_images.send(JSON.stringify({ action: "brightness", slider: "shadow", value: this.value }));
         }
-        document.querySelector('#habichuela-slider').oninput = function() {
-            ws_images.send(JSON.stringify({ slider: "habichuela", value: this.value }));
+        document.querySelector('#habichuela-brightness-slider').oninput = function() {
+            ws_images.send(JSON.stringify({ action: "brightness", slider: "habichuela", value: this.value }));
+        }
+        document.querySelector('#shadow-zoom-slider').oninput = function() {
+            ws_images.send(JSON.stringify({ action: "zoom", slider: "shadow", value: this.value }));
+        }
+        document.querySelector('#habichuela-zoom-slider').oninput = function() {
+            ws_images.send(JSON.stringify({ action: "zoom", slider: "habichuela", value: this.value }));
         }
     }
     function handleKey(event) {
@@ -207,12 +213,6 @@
             background-color: red;
         }
     }
-    .slider {
-        /* transform: rotate(-90deg);
-        position: absolute;
-        top: 50%;
-        right: -6%; */
-    }
     .water-level-message,
     .food-level-message,
     .dog-level-message {
@@ -232,11 +232,18 @@
     }
     .slider-container {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
+        margin-top: 20px;
+    }
+    .slider-container label {
+        width: fit-content;
+        margin: 12px auto;
+        font-size: 20px;
     }
     .slider-container-outer {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        justify-content: space-around;
     }
 </style>
 </head>
