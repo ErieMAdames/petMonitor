@@ -183,7 +183,7 @@ def up():
     global zoom_level_main
     servo1_angle = max(servo1_angle - 2, -90)
     servo1.set_angle(servo1_angle + servo1_angle_offset)
-    save_camera_settings('main', 0, zoom_level_main, servo0_angle + servo0_angle_offset, servo1_angle + servo1_angle_offset)
+    save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
 def down():
     global servo1_angle_offset
     global servo1_angle
@@ -191,7 +191,7 @@ def down():
     global zoom_level_main
     servo1_angle = min(servo1_angle + 2 , 90)
     servo1.set_angle(servo1_angle + servo1_angle_offset)
-    save_camera_settings('main', 0, zoom_level_main, servo0_angle + servo0_angle_offset, servo1_angle + servo1_angle_offset)
+    save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
 def right():
     global servo0_angle_offset
     global servo0_angle
@@ -199,7 +199,7 @@ def right():
     global zoom_level_main
     servo0_angle = max(servo0_angle - 2, -90)
     servo0.set_angle(servo0_angle + servo0_angle_offset)
-    save_camera_settings('main', 0, zoom_level_main, servo0_angle + servo0_angle_offset, servo1_angle + servo1_angle_offset)
+    save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
 def left():
     global servo0_angle_offset
     global servo0_angle
@@ -209,7 +209,7 @@ def left():
     global zoom_level_main
     servo0_angle = min(servo0_angle + 2, 90)
     servo0.set_angle(servo0_angle + servo0_angle_offset)
-    save_camera_settings('main', 0, zoom_level_main, servo0_angle + servo0_angle_offset, servo1_angle + servo1_angle_offset)
+    save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
 
 class StreamingOutput(io.BufferedIOBase):
     def __init__(self):
@@ -466,6 +466,20 @@ async def websocket_poop_handler(websocket):
             global bark_detected
             response = json.dumps({'bark_detected': bark_detected, "rms": rms})
             await websocket.send(response)
+        if data.get('state', None) == 'state':
+            cam_settings = get_camera_settings()
+            state = {}
+            for cam_setting in cam_settings:
+                if cam_setting[0] == 'main':
+                    state['mainZoom'] = cam_setting[2]
+                if cam_setting[0] == 'shadow':
+                    state['shadowZoom'] = cam_setting[2]
+                    state['shadowBrightness'] = cam_setting[1]
+                if cam_setting[0] == 'habichuela':
+                    state['habichuelaZoom'] = cam_setting[2]
+                    state['habichuelaBrightness'] = cam_setting[1]
+            response = json.dumps({'state': state})
+            await websocket.send(state)
 async def start_websocket_server():
     async with websockets.serve(websocket_camera_movement_handler, "0.0.0.0", 8765):
         await asyncio.Future()  # Run forever
@@ -504,7 +518,20 @@ def audio_callback(indata, frames, time, status):
         bark_detected = False
 create_tables()
 cam_settings = get_camera_settings()
-print(cam_settings)
+for cam_setting in cam_settings:
+    if cam_setting[0] == 'main':
+        zoom_level_main = cam_setting[2]
+        servo0_angle = cam_setting[3]
+        servo1_angle = cam_setting[4]
+        servo0.set_angle(servo0_angle + servo0_angle_offset)
+        servo1.set_angle(servo1_angle + servo1_angle_offset)
+    if cam_setting[0] == 'shadow':
+        zoom_level_shadow = cam_setting[2]
+        shadow_brightness = cam_setting[1]
+    if cam_setting[0] == 'habichuela':
+        zoom_level_habichuela = cam_setting[2]
+        habichuela_brightness = cam_setting[1]
+    
 picam2 = Picamera2()
 config = picam2.create_video_configuration(main={"size": (1280, 960)})
 config["transform"] = libcamera.Transform(vflip=1)

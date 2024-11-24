@@ -22,6 +22,11 @@
         const shadowLoudnessLevel = document.querySelector('.shadow-loudness-level');
         const currentLoudnessdB = document.querySelector('.current-loudness-db');
         const currentLoudnessRms = document.querySelector('.current-loudness-rms');
+        const shadowBrightnessSlider = document.querySelector('#shadow-brightness-slider');
+        const habichuelaBrightnessSlider = document.querySelector('#habichuela-brightness-slider');
+        const shadowZoomSlider = document.querySelector('#shadow-zoom-slider');
+        const habichuelaZoomSlider = document.querySelector('#habichuela-zoom-slider');
+        const mainZoomSlider = document.querySelector('#main-zoom-slider');
         ws_images.onmessage = (event) => {
             const data = JSON.parse(event.data);
             if (data.image && data.pet) {
@@ -77,6 +82,13 @@
                 currentLoudnessdB.innerHTML = Math.abs(20 * Math.log10(data.rms)).toFixed(2);
                 currentLoudnessRms.innerHTML = data.rms.toFixed(2);
             }
+            if (date.state !== undefined) {
+                shadowBrightnessSlider.value = state.shadowBrightness;
+                habichuelaBrightnessSlider = state.habichuelaBrightness;
+                shadowZoomSlider = state.shadowZoom;
+                habichuelaZoomSlider = state.habichuelaZoom;
+                mainZoomSlider = state.mainZoom;
+            }
         };
         setInterval(
             function() {
@@ -103,19 +115,20 @@
             },
             50
         );
-        document.querySelector('#shadow-brightness-slider').oninput = function() {
+        ws_images.send(JSON.stringify({ state: "state" }));
+        shadowBrightnessSlider.oninput = function() {
             ws_images.send(JSON.stringify({ action: "brightness", slider: "shadow", value: this.value }));
         }
-        document.querySelector('#habichuela-brightness-slider').oninput = function() {
+        habichuelaBrightnessSlider.oninput = function() {
             ws_images.send(JSON.stringify({ action: "brightness", slider: "habichuela", value: this.value }));
         }
-        document.querySelector('#shadow-zoom-slider').oninput = function() {
+        shadowZoomSlider.oninput = function() {
             ws_images.send(JSON.stringify({ action: "zoom", slider: "shadow", value: this.value }));
         }
-        document.querySelector('#habichuela-zoom-slider').oninput = function() {
+        habichuelaZoomSlider.oninput = function() {
             ws_images.send(JSON.stringify({ action: "zoom", slider: "habichuela", value: this.value }));
         }
-        document.querySelector('#main-zoom-slider').oninput = function() {
+        mainZoomSlider.oninput = function() {
             ws_images.send(JSON.stringify({ action: "zoom", slider: "main", value: this.value }));
         }
     }
