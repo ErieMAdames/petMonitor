@@ -602,7 +602,7 @@ def habichuela_grooming_notification():
 
 schedule.every().day.at("18:00").do(walk_notification)
 schedule.every().day.at("21:00").do(habichuela_grooming_notification)
-schedule.every(4).weeks.at("20:00").do(shadow_grooming_notification)
+schedule.every(30).days.at("20:00").do(shadow_grooming_notification)
 
 def test_secont_notification():
     send_notification('test_secont_notification', "test_secont_notification")
