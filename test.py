@@ -1,38 +1,30 @@
-import pyaudio
+#!/usr/bin/python3
+
+# How to do digital zoom using the "ScalerCrop" control.
+
 import time
-from math import log10
-import audioop  
 
-p = pyaudio.PyAudio()
-WIDTH = 2
-RATE = int(p.get_default_input_device_info()['defaultSampleRate'])
-DEVICE = p.get_default_input_device_info()['index']
-rms = 1
-print(p.get_default_input_device_info())
+from picamera2 import Picamera2, Preview
 
-def callback(in_data, frame_count, time_info, status):
-    global rms
-    rms = audioop.rms(in_data, WIDTH) / 32767
-    return in_data, pyaudio.paContinue
+picam2 = Picamera2()
+picam2.start_preview(Preview.QTGL)
 
+preview_config = picam2.create_preview_configuration()
+picam2.configure(preview_config)
 
-stream = p.open(format=p.get_format_from_width(WIDTH),
-                input_device_index=DEVICE,
-                channels=1,
-                rate=RATE,
-                input=True,
-                output=False,
-                stream_callback=callback)
+picam2.start()
+time.sleep(2)
 
-stream.start_stream()
+size = picam2.capture_metadata()['ScalerCrop'][2:]
 
-while stream.is_active(): 
-    db = 20 * log10(rms)
-    print(f"RMS: {rms} DB: {db}") 
-    # refresh every 0.3 seconds 
-    time.sleep(0.3)
+full_res = picam2.camera_properties['PixelArraySize']
 
-stream.stop_stream()
-stream.close()
+for _ in range(20):
+    # This syncs us to the arrival of a new camera frame:
+    picam2.capture_metadata()
 
-p.terminate()
+    size = [int(s * 0.95) for s in size]
+    offset = [(r - s) // 2 for r, s in zip(full_res, size)]
+    picam2.set_controls({"ScalerCrop": offset + size})
+
+time.sleep(2)
