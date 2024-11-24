@@ -5,7 +5,7 @@ import numpy as np
 SAMPLERATE = 44100  # Sampling rate (Hz)
 CHUNK_SIZE = 1024   # Number of audio frames per chunk
 LOUDNESS_THRESHOLD = 0.5  # Adjust based on sensitivity (RMS value, 0 to 1)
-DEVICE_INDEX = 0  # Replace with your microphone's device index, or use None for default
+DEVICE_INDEX = 1  # Replace with your microphone's device index, or use None for default
 
 def audio_callback(indata, frames, time, status):
     """Callback to process audio input."""
