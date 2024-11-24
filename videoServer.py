@@ -22,7 +22,7 @@ import asyncio
 import websockets
 import base64
 import time
-from libcamera import controls
+import libcamera
 
 SAMPLERATE = 16000  # Sampling rate (Hz)
 CHUNK_SIZE = 1024   # Number of audio frames per chunk
@@ -344,7 +344,7 @@ def audio_callback(indata, frames, time, status):
         bark_detected = False
 
 picam2 = Picamera2()
-picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960)}))
+picam2.configure(picam2.create_video_configuration(main={"size": (1280, 960), 'transform': libcamera.Transform(hflip=1))}))
 output = StreamingOutput()
 
 picam2.start_recording(JpegEncoder(), FileOutput(output))
