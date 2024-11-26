@@ -659,6 +659,9 @@ for cam_setting in cam_settings:
         zoom_level_habichuela = cam_setting[2]
         habichuela_brightness = int(cam_setting[1])
     
+import pprint
+pprint.pprint(Picamera2.global_camera_info())
+exit()
 picam2 = Picamera2()
 config = picam2.create_video_configuration(main={"size": (1280, 960)})
 config["transform"] = libcamera.Transform(vflip=1)
@@ -680,9 +683,6 @@ picam2_habichuela_monitor.start()
 
 # picam2_shadow_food = Picamera2(2)
 # picam2_shadow_food.start()
-import pprint
-pprint.pprint(Picamera2.global_camera_info())
-exit()
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
