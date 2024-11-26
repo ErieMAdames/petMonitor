@@ -17,6 +17,7 @@ from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
 from gpiozero import Button
 from motor import Motor
+from playsound import playsound
 import asyncio
 import websockets
 import base64
@@ -34,6 +35,7 @@ CHUNK_SIZE = 1024   # Number of audio frames per chunk
 LOUDNESS_THRESHOLD = 0.5  # RMS value threshold for loud sounds
 DEVICE_INDEX = 1  # Replace with your device index, or leave None for default
 CHANNELS = 2  # Use 2 if your microphone supports only stereo
+MUSIC_FILE = "relaxing.mp3"
 bark_detected = False
 rms = 0
 shadow_pooped = False
@@ -578,7 +580,11 @@ def run_bark_detector_thread():
     thread.start()
     return thread
 
+def play_music():
+    """Plays the relaxing music in a separate thread."""
+    Thread(target=playsound, args=(MUSIC_FILE,), daemon=True).start()
 last_bark_time = None
+music_playing = None
 def audio_callback(indata, frames, time_, status):
     """Callback to process audio input."""
     global bark_detected
@@ -593,6 +599,9 @@ def audio_callback(indata, frames, time_, status):
             last_bark_time = time.time()
             log_activity('bark detected', rms)
             send_notification('Shadow is barking', "Shadow is barking at something, go check it out")
+            if music_playing == None or time.time() - music_playing >= 240:
+                music_playing = time.time()
+                play_music()    
     else:
         bark_detected = False
 

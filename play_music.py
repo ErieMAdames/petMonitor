@@ -2,7 +2,7 @@ from playsound import playsound
 import threading
 import time
 
-MUSIC_FILE = "relaxing.mp3"  # Path to your music file
+MUSIC_FILE = "relaxing.mp3"
 
 def play_music():
     """Plays the relaxing music in a separate thread."""
