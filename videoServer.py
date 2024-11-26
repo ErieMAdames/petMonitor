@@ -392,11 +392,11 @@ def find_poop_habichuela(image, brightness = 50):
     output_image = image.copy()
     for i, contour in enumerate(sorted_contours[:3]):  # Limit to top 3
         # Draw contour
-        cv2.drawContours(output_image, [contour], -1, (0, 255, 0), 2)
+        cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 2)
         # Get bounding box
         x, y, w, h = cv2.boundingRect(contour)
         # Draw bounding box
-        cv2.rectangle(output_image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+        cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 0, 255), 2)
     return output_image, poop_detected
 
 async def websocket_camera_movement_handler(websocket):
