@@ -57,5 +57,5 @@ picam2_shadow_monitor.start()
 picam2_habichuela_monitor = Picamera2(3)
 picam2_habichuela_monitor.start()
 
-picam2_shadow_food = Picamera2(2)
-picam2_shadow_food.start()
+# picam2_shadow_food = Picamera2(2)
+# picam2_shadow_food.start()
