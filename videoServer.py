@@ -672,7 +672,7 @@ new_size = [int(s * zoom_level_main) for s in size]
 offset = [(r - s) // 2 for r, s in zip(full_res, new_size)]
 picam2.set_controls({"ScalerCrop": offset + new_size})
 
-picam2_shadow_monitor = Picamera2(video_device='/dev/video12')
+picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
 
 picam2_habichuela_monitor = Picamera2(3)
@@ -680,6 +680,8 @@ picam2_habichuela_monitor.start()
 
 # picam2_shadow_food = Picamera2(2)
 # picam2_shadow_food.start()
+print(Picamera2.global_camera_info())
+exit()
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
