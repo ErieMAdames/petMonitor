@@ -690,7 +690,7 @@ try:
     http_server_thread.daemon = True
     http_server_thread.start()
     run_websocket_server_in_thread(start_websocket_server())
-    run_bark_detector_thread()
+    # run_bark_detector_thread()
     run_scheduler_thread()
     asyncio.run(start_websocket_server_poop_monitor())
 finally:
