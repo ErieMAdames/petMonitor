@@ -675,8 +675,11 @@ picam2.set_controls({"ScalerCrop": offset + new_size})
 picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
 
-picam2_habichuela_monitor = Picamera2(2)
+picam2_habichuela_monitor = Picamera2(3)
 picam2_habichuela_monitor.start()
+
+picam2_shadow_food = Picamera2(2)
+picam2_shadow_food.start()
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
