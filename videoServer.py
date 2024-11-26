@@ -672,7 +672,7 @@ new_size = [int(s * zoom_level_main) for s in size]
 offset = [(r - s) // 2 for r, s in zip(full_res, new_size)]
 picam2.set_controls({"ScalerCrop": offset + new_size})
 
-picam2_shadow_monitor = Picamera2(2)
+picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
 
 picam2_habichuela_monitor = Picamera2(3)
