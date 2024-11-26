@@ -374,28 +374,18 @@ def find_poop_shadow(image, brightness = 50):
     return image, detected
 def find_poop_habichuela(image, brightness = 50):
     hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    # Define the brown color range in HSV
-    lower_brown = np.array([5, 50, 20])   # Slightly lower hue and saturation values
-    upper_brown = np.array([30, 255, 200])  # Extended brightness range
-    # Create a mask for brown spots
+    lower_brown = np.array([5, 50, 20])
+    upper_brown = np.array([30, 255, 200])
     brown_mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
-    # Clean up the mask with morphological operations
     kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
     clean_mask = cv2.morphologyEx(brown_mask, cv2.MORPH_OPEN, kernel)
-    # Find contours
     contours, _ = cv2.findContours(clean_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    # Sort contours by area (largest first)
     sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
-    # Initialize detection flag
     poop_detected = len(sorted_contours) > 0
-    # Draw the three largest contours and bounding boxes
     output_image = image.copy()
-    for i, contour in enumerate(sorted_contours[:3]):  # Limit to top 3
-        # Draw contour
+    for i, contour in enumerate(sorted_contours[:3]):
         cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 1)
-        # Get bounding box
         x, y, w, h = cv2.boundingRect(contour)
-        # Draw bounding box
         cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 0, 255), 1)
     return output_image, poop_detected
 
