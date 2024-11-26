@@ -678,8 +678,8 @@ picam2_shadow_monitor.start()
 picam2_habichuela_monitor = Picamera2(3)
 picam2_habichuela_monitor.start()
 
-picam2_shadow_food = Picamera2(1)
-picam2_shadow_food.start()
+# picam2_shadow_food = Picamera2(1)
+# picam2_shadow_food.start()
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)
