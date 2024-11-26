@@ -3,7 +3,7 @@ import io
 import logging
 import socketserver
 from http import server
-from threading import Condition, Thread
+from threading import Condition, Thread, Lock
 import json
 import cv2
 import numpy as np
@@ -56,6 +56,7 @@ button = Button(16)
 counter = 0
 last_pressed_time = 0
 motor = Motor()
+cameraLock = Lock()
 
 PAGE = ''
 with open('index.html', 'r') as f:
@@ -460,7 +461,11 @@ async def websocket_poop_handler(websocket):
             response = json.dumps({"pet": "shadow", "image": img_base64, "detected": detected})
             await websocket.send(response)
         if data.get("pet", None) == 'habichuela':
-            img = picam2_habichuela_monitor.capture_array()
+            img = []
+            with cameraLock:
+                picam2_habichuela_monitor.start()
+                img = picam2_habichuela_monitor.capture_array()
+                picam2_habichuela_monitor.stop()
             if zoom_level_habichuela > 1:
                 height, width = img.shape[:2]
                 new_width = int(width / zoom_level_habichuela)
@@ -679,9 +684,9 @@ picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
 
 picam2_habichuela_monitor = Picamera2(3)
-picam2_habichuela_monitor.start()
+# picam2_habichuela_monitor.start()
 
-# picam2_shadow_food = Picamera2(2)
+picam2_shadow_food = Picamera2(2)
 # picam2_shadow_food.start()
 try:
     address = ('', 8000)
