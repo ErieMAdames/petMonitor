@@ -251,7 +251,7 @@ def down():
     servo1_angle = min(servo1_angle + 2 , 90)
     servo1.set_angle(servo1_angle + servo1_angle_offset)
     save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
-def right():
+def left():
     global servo0_angle_offset
     global servo0_angle
     global servo1_angle
@@ -259,7 +259,7 @@ def right():
     servo0_angle = max(servo0_angle - 2, -90)
     servo0.set_angle(servo0_angle + servo0_angle_offset)
     save_camera_settings('main', 0, zoom_level_main, servo0_angle, servo1_angle)
-def left():
+def right():
     global servo0_angle_offset
     global servo0_angle
     global servo0_angle_offset
