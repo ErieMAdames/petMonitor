@@ -225,7 +225,7 @@ def on_button_press():
     current_time = time.time()
     if current_time - last_pressed_time >= 1:
         motor.set_power(30)
-        time.sleep(.1)
+        time.sleep(.15)
         motor.set_power(0)
         counter += 1
         last_pressed_time = current_time
