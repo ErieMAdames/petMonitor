@@ -224,7 +224,7 @@ def on_button_press():
     global counter, last_pressed_time
     current_time = time.time()
     if current_time - last_pressed_time >= 1:
-        motor.set_power(1)
+        motor.set_power(30)
         time.sleep(.25)
         motor.set_power(0)
         counter += 1
@@ -595,13 +595,12 @@ def audio_callback(indata, frames, time_, status):
     if rms > LOUDNESS_THRESHOLD:
         if last_bark_time is None:
             last_bark_time = time.time()
-        elif time.time() - last_bark_time >= 2:
+        elif time.time() - last_bark_time >= 60:
             bark_detected = True
             last_bark_time = time.time()
             log_activity('bark detected', rms)
             send_notification('Shadow is barking', "Shadow is barking at something, go check it out")
             if music_playing == None or time.time() - music_playing >= 240:
-                print('playing music')
                 music_playing = time.time()
                 play_music()    
     else:
