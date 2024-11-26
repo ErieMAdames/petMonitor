@@ -537,7 +537,7 @@ async def websocket_poop_handler(websocket):
             await websocket.send(response)
         if data.get("food_level", None) == 'food_level':
             food_level = ultrasonic.get_distance()
-            food_out = food_level > 27
+            food_out = food_level > 29
             if food_out and not food_ran_out:
                 food_ran_out = True
                 food_refilled = False
