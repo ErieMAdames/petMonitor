@@ -12,12 +12,13 @@ class Ultrasonic():
 # Set up the ultrasonic sensor with trigger and echo pins
 
 
-# try:
-#     u = Ultrasonic()
-#     while True:
-#         distance = u.get_distance()
-#         print(f"Distance: {distance} cm")
-#         sleep(1)  # Wait for 1 second before the next measurement
+if __name__ == '__main__':
+    try:
+        u = Ultrasonic()
+        while True:
+            distance = u.get_distance()
+            print(f"Distance: {distance} cm")
+            sleep(1)  # Wait for 1 second before the next measurement
 
-# except KeyboardInterrupt:
-#     print("Measurement stopped by user")
+    except KeyboardInterrupt:
+        print("Measurement stopped by user")
