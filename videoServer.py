@@ -336,7 +336,7 @@ def increase_brightness(img, value=30):
     final_hsv = cv2.merge((h, s, v))
     img = cv2.cvtColor(final_hsv, cv2.COLOR_HSV2BGR)
     return img
-def find_poop(image, brightness = 50):
+def find_poop_shadow(image, brightness = 50):
     image = increase_brightness(image, brightness)
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     _, thresholded = cv2.threshold(gray, 200, 255, cv2.THRESH_BINARY)
@@ -372,6 +372,33 @@ def find_poop(image, brightness = 50):
                     dy_max_full = y + dy_max
                     cv2.rectangle(image, (dx_min_full, dy_min_full), (dx_max_full, dy_max_full), (0, 0, 255), 1)
     return image, detected
+def find_poop_habichuela(image, brightness = 50):
+    hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    # Define the brown color range in HSV
+    lower_brown = np.array([10, 100, 20])  # Adjust as needed
+    upper_brown = np.array([20, 255, 200])  # Adjust as needed
+    # Create a mask for brown spots
+    brown_mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
+    # Clean up the mask with morphological operations
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    clean_mask = cv2.morphologyEx(brown_mask, cv2.MORPH_OPEN, kernel)
+    # Find contours
+    contours, _ = cv2.findContours(clean_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    # Sort contours by area (largest first)
+    sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
+    # Initialize detection flag
+    poop_detected = len(sorted_contours) > 0
+    # Draw the three largest contours and bounding boxes
+    output_image = image.copy()
+    for i, contour in enumerate(sorted_contours[:3]):  # Limit to top 3
+        # Draw contour
+        cv2.drawContours(output_image, [contour], -1, (0, 255, 0), 2)
+        # Get bounding box
+        x, y, w, h = cv2.boundingRect(contour)
+        # Draw bounding box
+        cv2.rectangle(output_image, (x, y), (x + w, y + h), (255, 0, 0), 2)
+    return output_image, poop_detected
+
 async def websocket_camera_movement_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
@@ -419,7 +446,7 @@ async def websocket_poop_handler(websocket):
                 img = img[y1:y2, x1:x2]
                 img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img, detected = find_poop(img, shadow_brightness)
+            img, detected = find_poop_shadow(img, shadow_brightness)
             if detected:
                 if not shadow_pooped and shadow_poop_clean_time is None:
                     if shadow_poop_start_time is None:
@@ -456,7 +483,7 @@ async def websocket_poop_handler(websocket):
                 img = img[y1:y2, x1:x2]
                 img = cv2.resize(img, (width, height), interpolation=cv2.INTER_LINEAR)
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            img, detected = find_poop(img, habichuela_brightness)
+            img, detected = find_poop_habichuela(img, habichuela_brightness)
             if detected:
                 if not habichuela_pooped and habichuela_poop_clean_time is None:
                     if habichuela_poop_start_time is None:
