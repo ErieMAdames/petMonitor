@@ -680,7 +680,8 @@ picam2_habichuela_monitor.start()
 
 # picam2_shadow_food = Picamera2(2)
 # picam2_shadow_food.start()
-print(Picamera2.global_camera_info())
+import pprint
+pprint.pprint(Picamera2.global_camera_info())
 exit()
 try:
     address = ('', 8000)
