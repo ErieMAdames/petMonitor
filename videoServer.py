@@ -377,7 +377,6 @@ def find_poop_habichuela(image, brightness = 50):
     # Define the brown color range in HSV
     lower_brown = np.array([10, 100, 20])  # Adjust as needed
     upper_brown = np.array([20, 255, 200])  # Adjust as needed
-    lower_brown = np.array([30, 30, 50])  # Adjust as needed
     # Create a mask for brown spots
     brown_mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
     # Clean up the mask with morphological operations
