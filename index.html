@@ -18,7 +18,7 @@
                     ws_images.send(JSON.stringify({ pet: "shadow" }));
                     ws_images.send(JSON.stringify({ pet: "habichuela" }));
                 },
-                10000
+                500
             );
             setInterval(
                 function() {
@@ -30,7 +30,7 @@
                 function() {
                     ws_images.send(JSON.stringify({ food_level: "food_level" }));
                 },
-                500
+                3000
             );
             setInterval(
                 function() {

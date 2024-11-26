@@ -463,9 +463,7 @@ async def websocket_poop_handler(websocket):
         if data.get("pet", None) == 'habichuela':
             img = []
             with cameraLock:
-                picam2_habichuela_monitor.start()
                 img = picam2_habichuela_monitor.capture_array()
-                picam2_habichuela_monitor.stop()
             if zoom_level_habichuela > 1:
                 height, width = img.shape[:2]
                 new_width = int(width / zoom_level_habichuela)
@@ -541,6 +539,12 @@ async def websocket_poop_handler(websocket):
             response = json.dumps({"water_level": water_level, 'water_out': water_out})
             await websocket.send(response)
         if data.get("food_level", None) == 'food_level':
+            with cameraLock:
+                picam2_habichuela_monitor.stop()
+                picam2_shadow_food.start()
+                img = picam2_shadow_food.capture_array()
+                picam2_habichuela_monitor.start()
+                picam2_shadow_food.stop()
             food_level = ultrasonic.get_distance()
             food_out = food_level > 30 or food_level < 29
             if food_out and not food_ran_out:
@@ -684,7 +688,7 @@ picam2_shadow_monitor = Picamera2(1)
 picam2_shadow_monitor.start()
 
 picam2_habichuela_monitor = Picamera2(3)
-# picam2_habichuela_monitor.start()
+picam2_habichuela_monitor.start()
 
 picam2_shadow_food = Picamera2(2)
 # picam2_shadow_food.start()
