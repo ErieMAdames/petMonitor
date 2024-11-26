@@ -601,6 +601,7 @@ def audio_callback(indata, frames, time_, status):
             log_activity('bark detected', rms)
             send_notification('Shadow is barking', "Shadow is barking at something, go check it out")
             if music_playing == None or time.time() - music_playing >= 240:
+                print('playing music')
                 music_playing = time.time()
                 play_music()    
     else:
