@@ -45,6 +45,8 @@ async def websocket_handler(websocket):
             # # Convert the image back to BGR for sending to the websocket
             hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
 
+            lower_brown = np.array([5, 50, 20])
+            upper_brown = np.array([30, 255, 200])
             circle_center = (int(image.shape[1] / 2), int(image.shape[0] / 2))
             circle_radius = 100  # Adjust the radius as needed
 
@@ -56,8 +58,6 @@ async def websocket_handler(websocket):
             circle_mask = np.zeros_like(mask)
             cv2.circle(circle_mask, circle_center, circle_radius, 255, thickness=-1)
             masked_img = cv2.bitwise_and(mask, mask, mask=circle_mask)
-            lower_brown = np.array([5, 50, 20])
-            upper_brown = np.array([30, 255, 200])
             brown_mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
             clean_mask = cv2.morphologyEx(brown_mask, cv2.MORPH_OPEN, kernel)
