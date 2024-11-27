@@ -11,17 +11,17 @@ import time
 import requests
 
 # Color range for brown (dog kibble) in HSV space
-lower_brown = np.array([10, 100, 100])  # Lower bound of brown color in HSV
-upper_brown = np.array([20, 255, 255])  # Upper bound of brown color in HSV
 
 async def websocket_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
         if data.get("food", None) == 'food':
+            lower_brown = np.array([10, 100, 100])  # Lower bound of brown color in HSV
+            upper_brown = np.array([20, 255, 255])  # Upper bound of brown color in HSV
             image = picam2.capture_array()
             hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-            lower_brown = np.array([10, 30, 40])  
-            upper_brown = np.array([30, 200, 200])
+            # lower_brown = np.array([10, 30, 40])  
+            # upper_brown = np.array([30, 200, 200])
             circle_center = (int(image.shape[1] / 2), int(image.shape[0] / 2))
             circle_radius = 125  # Adjust the radius as needed
             cv2.circle(image, circle_center, circle_radius, (0, 255, 0), 2)
@@ -33,12 +33,14 @@ async def websocket_handler(websocket):
             sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
             output_image = image.copy()
             min_area = 30
+            food_out = True
             for i, contour in enumerate(sorted_contours):
                 if cv2.contourArea(contour) > min_area:
+                    food_out = False
                     cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 2)
             _, jpeg = cv2.imencode('.jpg', output_image)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
-            response = json.dumps({"image": img_base64})
+            response = json.dumps({"image": img_base64, "food_out": food_out})
             await websocket.send(response)
 
 async def start_websocket_server_monitor():

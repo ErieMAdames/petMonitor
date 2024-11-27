@@ -28,7 +28,6 @@ import requests
 import schedule
 from datetime import datetime
 
-
 DB_PATH = "pet_monitor.db"
 SAMPLERATE = 16000  # Sampling rate (Hz)
 CHUNK_SIZE = 1024   # Number of audio frames per chunk
