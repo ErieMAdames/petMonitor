@@ -88,6 +88,8 @@ def run_websocket_server_in_thread(coroutine):
     return thread
 
 picam2 = Picamera2()
+config = picam2.create_preview_configuration(main={"format":"RGB888"})
+picam2.configure(config)
 picam2.start()
 
 try:
