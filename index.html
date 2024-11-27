@@ -12,7 +12,7 @@
         ws_images.binaryType = "arraybuffer";
         ws_food = new WebSocket('ws://' + window.location.hostname + ':8500/ws');
         ws_food.binaryType = "arraybuffer";
-        ws_ws_foodimages.onopen = () => {
+        ws_food.onopen = () => {
             console.log("WebSocket for Shadow & Habichuela connection established");
             setInterval(
                 function() {
