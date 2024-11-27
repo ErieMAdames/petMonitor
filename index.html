@@ -30,7 +30,7 @@
                 function() {
                     ws_images.send(JSON.stringify({ food_level: "food_level" }));
                 },
-                3000
+                500
             );
             setInterval(
                 function() {
@@ -355,7 +355,6 @@
         <h1>Pet Monitor</h1>
     </header>
     <main>
-        <img src="" id="shadow-food-capture"/>
         <div class="main-content">
             <div class="main-cam-container">
                 <img src="stream.mjpg" class="main-cam"/>
@@ -401,6 +400,7 @@
                 </p>
                 <p class="food-level-message">
                     Food level normal
+                    <img src="" id="shadow-food-capture"/>
                 </p>
                 <p class="dog-level-message">
                     Shadow is <span class="shadow-loudness-level">quiet</span><br>
