@@ -32,9 +32,10 @@ async def websocket_handler(websocket):
             contours, _ = cv2.findContours(masked_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
             output_image = image.copy()
+            min_area = 30
             for i, contour in enumerate(sorted_contours):
-                cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 2)
-                x, y, w, h = cv2.boundingRect(contour)
+                if cv2.contourArea(contour) > min_area:
+                    cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 2)
             _, jpeg = cv2.imencode('.jpg', output_image)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
             response = json.dumps({"image": img_base64})
