@@ -1,450 +1,137 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<title>Video Stream</title>
-<script>
-    let ws;
-    let ws_images;
-    let ws_food;
-
-    function initWebSocket() {
-        ws = new WebSocket('ws://' + window.location.hostname + ':8765/ws');
-        ws_images = new WebSocket('ws://' + window.location.hostname + ':8744/ws');
-        ws_images.binaryType = "arraybuffer";
-        ws_food = new WebSocket('ws://192.168.86.47:8500/ws');
-        ws_food.binaryType = "arraybuffer";
-        ws_food.onopen = () => {
-            console.log("WebSocket for Shadow & Habichuela connection established");
-            setInterval(
-                function() {
-                    ws_food.send(JSON.stringify({ food: "food" }));
-                },
-                500
-            );
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSV Color Adjustment Tool</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
         }
-        ws.onopen = () => console.log("WebSocket connection established");
-        ws.onclose = () => console.log("WebSocket connection closed");
-        ws_images.onopen = () => {
-            console.log("WebSocket for Shadow & Habichuela connection established");
-            setInterval(
-                function() {
-                    ws_images.send(JSON.stringify({ pet: "shadow" }));
-                    ws_images.send(JSON.stringify({ pet: "habichuela" }));
-                },
-                500
-            );
-            setInterval(
-                function() {
-                    ws_images.send(JSON.stringify({ water_level: "water_level" }));
-                },
-                500
-            );
-            setInterval(
-                function() {
-                    ws_images.send(JSON.stringify({ food_level: "food_level" }));
-                },
-                3000
-            );
-            setInterval(
-                function() {
-                    ws_images.send(JSON.stringify({ loudness: "loudness" }));
-                },
-                50
-            );
-            setInterval(
-                function() {
-                    ws_images.send(JSON.stringify({ logs: "logs" }));
-                },
-                1000
-            );
-            ws_images.send(JSON.stringify({ state: "state" }));
-        };
-        ws_food.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.image) {
-                const byteCharacters = atob(data.image); // Decode Base64 string
-                const byteNumbers = new Uint8Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const blob = new Blob([byteNumbers], { type: "image/jpeg" });
-                const imageUrl = URL.createObjectURL(blob);
-                document.getElementById('shadow-food-capture').src = imageUrl;
-            }
+        .slider-container {
+            margin-bottom: 10px;
         }
-        ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
-        const shadowPoopCapture = document.querySelector('.shadow-poop-capture');
-        const shadowPoopDetectedWarning = document.querySelector('.shadow-poop-capture-container .detected');
-        const habichuelaPoopCapture = document.querySelector('.habichuela-poop-capture');
-        const habichuelaPoopDetectedWarning = document.querySelector('.habichuela-poop-capture-container .detected');
-        const waterLevelMessage = document.querySelector('.water-level-message');
-        const foodLevelMessage = document.querySelector('.food-level-message');
-        const shadowLoudnessLevel = document.querySelector('.shadow-loudness-level');
-        const currentLoudnessdB = document.querySelector('.current-loudness-db');
-        const currentLoudnessRms = document.querySelector('.current-loudness-rms');
-        const shadowBrightnessSlider = document.querySelector('#shadow-brightness-slider');
-        const habichuelaBrightnessSlider = document.querySelector('#habichuela-brightness-slider');
-        const shadowZoomSlider = document.querySelector('#shadow-zoom-slider');
-        const habichuelaZoomSlider = document.querySelector('#habichuela-zoom-slider');
-        const mainZoomSlider = document.querySelector('#main-zoom-slider');
-
-        const lastFoodRunoutTime = document.querySelector('.last-food-runout-time');
-        const lastFoodRefillTime = document.querySelector('.last-food-refill-time');
-        const lastWaterRunoutTime = document.querySelector('.last-water-runout-time');
-        const lastWaterRefillTime = document.querySelector('.last-water-refill-time');
-        const lastShadowPoopTime = document.querySelector('.last-shadow-poop-time');
-        const lastShadowPoopCleanupTime = document.querySelector('.last-shadow-poop-cleanup-time');
-        const lastHabichuelaPoopTime = document.querySelector('.last-habichuela-poop-time');
-        const lastHabichuelaPoopCleanupTime = document.querySelector('.last-habichuela-poop-cleanup-time');
-        const treatsLogs = document.querySelector('.treats-logs');
-        const barksLogs = document.querySelector('.barks-logs');
-        ws_images.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.image && data.pet) {
-                const byteCharacters = atob(data.image); // Decode Base64 string
-                const byteNumbers = new Uint8Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const blob = new Blob([byteNumbers], { type: "image/jpeg" });
-                const imageUrl = URL.createObjectURL(blob);
-                if (data.pet === "shadow") {
-                    shadowPoopCapture.src = imageUrl;
-                    if (data.detected) {
-                        shadowPoopDetectedWarning.style.visibility = 'visible';
-                    } else {
-                        shadowPoopDetectedWarning.style.visibility = 'hidden';
-                    }
-                } else if (data.pet === "habichuela") {
-                    habichuelaPoopCapture.src = imageUrl;
-                    if (data.detected) {
-                        habichuelaPoopDetectedWarning.style.visibility = 'visible';
-                    } else {
-                        habichuelaPoopDetectedWarning.style.visibility = 'hidden';
-                    }
-                }
-            }
-            if (data.water_level) {
-                if (data.water_out) {
-                    waterLevelMessage.innerHTML = 'Water levels low. Refill water now';
-                    waterLevelMessage.classList.add('refill');
-                } else {
-                    waterLevelMessage.innerHTML = 'Water levels normal';
-                    waterLevelMessage.classList.remove('refill');
-                }
-            }
-            if (data.food_level) {
-                if (data.food_out) {
-                    foodLevelMessage.innerHTML = 'Food levels low. Refill food now';
-                    foodLevelMessage.classList.add('refill');
-                } else {
-                    foodLevelMessage.innerHTML = 'Food levels normal';
-                    foodLevelMessage.classList.remove('refill');
-                }
-            }
-            if (data.bark_detected !== undefined) {
-                if (data.bark_detected) {
-                    shadowLoudnessLevel.innerHTML = 'barking'
-                    shadowLoudnessLevel.style.color = 'red';
-                } else {
-                    shadowLoudnessLevel.innerHTML = 'quiet'
-                    shadowLoudnessLevel.style.color = 'green';
-                }
-                currentLoudnessdB.innerHTML = Math.abs(20 * Math.log10(data.rms)).toFixed(2);
-                currentLoudnessRms.innerHTML = data.rms.toFixed(2);
-            }
-            if (data.state !== undefined && Object.keys(data.state).length) {
-                console.log(data);
-                shadowBrightnessSlider.value = data.state.shadowBrightness;
-                habichuelaBrightnessSlider.value = data.state.habichuelaBrightness;
-                shadowZoomSlider.value = data.state.shadowZoom;
-                habichuelaZoomSlider.value = data.state.habichuelaZoom;
-                mainZoomSlider.value = data.state.mainZoom;
-            }
-            if (data.logs !== undefined) {
-                if (data.logs.food_out.length) {
-                    lastFoodRunoutTime.innerHTML = new Date(data.logs.food_out[0]).toLocaleString();
-                }
-                if (data.logs.food_refilled.length) {
-                    lastFoodRefillTime.innerHTML = new Date(data.logs.food_refilled[0]).toLocaleString();
-                }
-                if (data.logs.water_out.length) {
-                    lastWaterRunoutTime.innerHTML = new Date(data.logs.water_out[0]).toLocaleString();
-                }
-                if (data.logs.water_refilled.length) {
-                    lastWaterRefillTime.innerHTML = new Date(data.logs.water_refilled[0]).toLocaleString();
-                }
-                if (data.logs.shadow_pooped.length) {
-                    lastShadowPoopTime.innerHTML = new Date(data.logs.shadow_pooped[0]).toLocaleString();
-                }
-                if (data.logs.shadow_poop_cleaned.length) {
-                    lastShadowPoopCleanupTime.innerHTML = new Date(data.logs.shadow_poop_cleaned[0]).toLocaleString();
-                }
-                if (data.logs.habichuela_pooped.length) {
-                    lastHabichuelaPoopTime.innerHTML = new Date(data.logs.habichuela_pooped[0]).toLocaleString();
-                }
-                if (data.logs.habichuela_poop_cleaned.length) {
-                    lastHabichuelaPoopCleanupTime.innerHTML = new Date(data.logs.habichuela_poop_cleaned[0]).toLocaleString();
-                }
-                if (data.logs.treats.length) {
-                    treatsLogs.innerHTML = '';
-                    data.logs.treats.forEach(element => {
-                        const li = document.createElement("li");
-                        li.innerHTML = new Date(element[0]).toLocaleString();
-                        treatsLogs.appendChild(li);
-                    });
-                }
-                if (data.logs.barks.length) {
-                    barksLogs.innerHTML = '';
-                    data.logs.barks.forEach(element => {
-                        const li = document.createElement("li");
-                        li.innerHTML = new Date(element[0]).toLocaleString();
-                        barksLogs.appendChild(li);
-                    });
-                }
-            }
-        };
-        shadowBrightnessSlider.oninput = function() {
-            ws_images.send(JSON.stringify({ action: "brightness", slider: "shadow", value: this.value }));
+        canvas {
+            border: 1px solid black;
         }
-        habichuelaBrightnessSlider.oninput = function() {
-            ws_images.send(JSON.stringify({ action: "brightness", slider: "habichuela", value: this.value }));
-        }
-        shadowZoomSlider.oninput = function() {
-            ws_images.send(JSON.stringify({ action: "zoom", slider: "shadow", value: this.value }));
-        }
-        habichuelaZoomSlider.oninput = function() {
-            ws_images.send(JSON.stringify({ action: "zoom", slider: "habichuela", value: this.value }));
-        }
-        mainZoomSlider.oninput = function() {
-            ws_images.send(JSON.stringify({ action: "zoom", slider: "main", value: this.value }));
-        }
-    }
-    function handleKey(event) {
-        const key = event.key.toLowerCase();
-        if (['w', 'a', 's', 'd'].includes(key)) {
-            ws.send(JSON.stringify({ key: key, action: event.type }));
-        }
-    }
-
-    window.onload = () => {
-        initWebSocket();
-        document.addEventListener('keydown', handleKey);
-        document.addEventListener('keyup', handleKey);
-    };
-</script>
-<style>
-    html {
-        background-color: gainsboro;
-    }
-    header h1 {
-        font-size: 72px;
-        margin: 40px auto;
-        width: fit-content;
-        font-family: "Roboto", sans-serif;
-        font-weight: 100;
-        font-style: normal;
-    }
-    body {
-        font-family: "Roboto", sans-serif;
-        font-weight: 100;
-        font-style: normal;
-    }
-    .main-content {
-        display: flex;
-        justify-content: space-between;
-        width: 80vw;
-        margin: 0 auto;
-    }
-    img {
-        border: 1px solid gray;
-        border-radius: 16px;
-        pointer-events: none;
-    }
-    .main-cam-container {
-        position: relative;
-    }
-    .poop-capture-container {
-        height: 962px;
-        width: fit-content;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-    }
-    .shadow-poop-capture-container,
-    .habichuela-poop-capture-container {
-        position: relative;
-    }
-    .shadow-poop-capture-container img,
-    .habichuela-poop-capture-container img {
-        height: 400px;
-        width: 642px;
-    }
-    .shadow-poop-capture-container .label,
-    .habichuela-poop-capture-container .label {
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translate(-50%, 50%);
-        width: fit-content;
-        z-index: 999;
-        background: black;
-        margin: 0;
-        color: white;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    .shadow-poop-capture-container .detected,
-    .habichuela-poop-capture-container .detected {
-        position: absolute;
-        width: fit-content;
-        bottom: 25%;
-        left: 25%;
-        z-index: 999;
-        background: red;
-        margin: 0;
-        color: white;
-        padding: 10px;
-        border-radius: 10px;
-        animation: blinker 2s linear infinite;
-    }
-    @keyframes blinker {
-        50% {
-            opacity: 0;
-        }
-    }
-    @keyframes backgroundFlash {
-        50% {
-            background-color: red;
-        }
-    }
-    .water-level-message,
-    .food-level-message,
-    .dog-level-message {
-        width: fit-content;
-        font-size: 32px;
-        padding: 10px;
-        border-radius: 10px;
-    }
-    .water-level-message.refill,
-    .food-level-message.refill {
-        animation: backgroundFlash 2s linear infinite;
-    }
-    .slider-container {
-        display: flex;
-        flex-direction: column;
-        margin-top: 20px;
-    }
-    .slider-container label {
-        width: fit-content;
-        margin: 12px auto;
-        font-size: 20px;
-    }
-    .slider-container-outer {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-    }
-    .main-zoom-slider {
-        position: absolute;
-        bottom: 5%;
-        left: 50%;
-        width: 80%;
-        transform: translate(-50%, 0);
-    }
-    .logs-container {
-        display: flex;
-        justify-content: space-between;
-        width: 80vw;
-        margin: 80px auto;
-        margin-top: 80px;
-    }
-    .evet-logs {
-        width: 20vw;
-    }
-    .habichuela {
-        display: none;
-    }
-</style>
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Pet Monitor</h1>
-    </header>
-    <main>
-        <img src="" id="shadow-food-capture"/>
-        <div class="main-content">
-            <div class="main-cam-container">
-                <img src="stream.mjpg" class="main-cam"/>
-                <input type="range" min="1" max="100" value="0" id="main-zoom-slider" class="main-zoom-slider" name="main-zoom-slider">
-            </div>
-            <div class="poop-capture-container">
-                <div class="shadow-poop-capture-container">
-                    <p class="label">Shadow's Pad</p>
-                    <img src="" class="shadow-poop-capture"/>
-                    <div class="slider-container-outer">
-                        <div class="slider-container">
-                            <input type="range" min="1" max="100" value="50" class="slider" id="shadow-brightness-slider" name="shadow-brightness-slider">
-                            <label name="shadow-brightness-slider">Brightness</label>
-                        </div>
-                        <div class="slider-container">
-                            <input type="range" min="1" max="100" value="0" class="slider" id="shadow-zoom-slider" name="shadow-zoom-slider">
-                            <label name="shadow-zoom-slider">Zoom</label>
-                        </div>
-                    </div>
-                    <p class="detected">POOP DETECTED, CHANGE THE PAD</p>
-                </div>
-                <div class="habichuela-poop-capture-container">
-                    <p class="label">Habichuela's litter box</p>
-                    <img src="" class="habichuela-poop-capture"/>
-                    <div class="slider-container-outer">
-                        <div class="slider-container">
-                            <input type="range" min="1" max="100" value="50" class="slider" id="habichuela-brightness-slider" name="habichuela-brightness-slider">
-                            <label name="habichuela-brightness-slider">Brightness</label>
-                        </div>
-                        <div class="slider-container habichuela">
-                            <input type="range" min="1" max="100" value="0" class="slider" id="habichuela-zoom-slider" name="habichuela-zoom-slider">
-                            <label name="habichuela-zoom-slider">Zoom</label>
-                        </div>
-                    </div>
-                    <p class="detected">POOP DETECTED, POUR SOME BAKING SODA</p>
-                </div>
-            </div>
-        </div>
-        <div class="logs-container">
-            <div class="water-food-level-container">
-                <p class="water-level-message">
-                    Water level normal
-                </p>
-                <p class="food-level-message">
-                    Food level normal
-                </p>
-                <p class="dog-level-message">
-                    Shadow is <span class="shadow-loudness-level">quiet</span><br>
-                    Current loudness : <span class="current-loudness-db"></span>db | <span class="current-loudness-rms"></span> rms (not accurate)<br>
-                </p>
-            </div>
-            <div class="event-logs">
-                <h2>Event Logs</h2>
-                <p class="last-food-refill">Last food refill time <span class="last-food-refill-time"></span></p>
-                <p class="last-food-runout">Last food runout time <span class="last-food-runout-time"></span></p>
-                <p class="last-water-refill">Last water refill time <span class="last-water-refill-time"></span></p>
-                <p class="last-water-runout">Last water runout time <span class="last-water-runout-time"></span></p>
-                <p class="last-shadow-poop">Last Shadow poop time <span class="last-shadow-poop-time"></span></p>
-                <p class="last-shadow-poop-cleanup">Last Shadow poop cleanup time <span class="last-shadow-poop-cleanup-time"></span></p>
-                <p class="last-habichuela-poop">Last Habichuela poop time <span class="last-habichuela-poop-time"></span></p>
-                <p class="last-habichuela-poop-cleanup">Last Habichuela poop cleanup time <span class="last-habichuela-poop-cleanup-time"></span></p>
-                <div class="treats">
-                    <p>Time last 5 treats dispensed</p>
-                    <ul class="treats-logs">
-                    </ul>
-                </div>
-                <div class="barks">
-                    <p>Last 5 barks time</p>
-                    <ul class="barks-logs">
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </main>
+
+<h1>HSV Color Range Adjustment</h1>
+
+<canvas id="canvas"></canvas>
+
+<div class="slider-container">
+    <label for="lowerHue">Lower Hue: </label><input type="range" id="lowerHue" min="0" max="179" value="10"><span id="lowerHueValue">10</span><br>
+    <label for="lowerSaturation">Lower Saturation: </label><input type="range" id="lowerSaturation" min="0" max="255" value="50"><span id="lowerSaturationValue">50</span><br>
+    <label for="lowerValue">Lower Value: </label><input type="range" id="lowerValue" min="0" max="255" value="30"><span id="lowerValueValue">30</span><br>
+    <label for="upperHue">Upper Hue: </label><input type="range" id="upperHue" min="0" max="179" value="30"><span id="upperHueValue">30</span><br>
+    <label for="upperSaturation">Upper Saturation: </label><input type="range" id="upperSaturation" min="0" max="255" value="255"><span id="upperSaturationValue">255</span><br>
+    <label for="upperValue">Upper Value: </label><input type="range" id="upperValue" min="0" max="255" value="180"><span id="upperValueValue">180</span><br>
+</div>
+
+<script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+
+    // Load the image (you can replace this with your own image source)
+    img.src = 'https://via.placeholder.com/500x500.png?text=Image+to+Process';  // Example image URL
+
+    img.onload = () => {
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+        updateMask();  // Call to display the initial masked image
+    };
+
+    // Update slider values display
+    const sliders = ['lowerHue', 'lowerSaturation', 'lowerValue', 'upperHue', 'upperSaturation', 'upperValue'];
+    sliders.forEach(sliderId => {
+        const slider = document.getElementById(sliderId);
+        const valueDisplay = document.getElementById(sliderId + 'Value');
+        slider.addEventListener('input', () => {
+            valueDisplay.textContent = slider.value;
+            updateMask();  // Update the mask when any slider value changes
+        });
+    });
+
+    function updateMask() {
+        // Get current values from sliders
+        const lowerHue = parseInt(document.getElementById('lowerHue').value);
+        const lowerSaturation = parseInt(document.getElementById('lowerSaturation').value);
+        const lowerValue = parseInt(document.getElementById('lowerValue').value);
+        const upperHue = parseInt(document.getElementById('upperHue').value);
+        const upperSaturation = parseInt(document.getElementById('upperSaturation').value);
+        const upperValue = parseInt(document.getElementById('upperValue').value);
+
+        // Create a canvas to work with the image data
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+
+            // Convert RGB to HSV
+            const hsv = rgbToHsv(r, g, b);
+
+            // Check if pixel is within the defined HSV range
+            if (isWithinRange(hsv, lowerHue, lowerSaturation, lowerValue, upperHue, upperSaturation, upperValue)) {
+                // If it is, keep the pixel color
+                data[i] = r;
+                data[i + 1] = g;
+                data[i + 2] = b;
+            } else {
+                // Otherwise, make the pixel black (or change to any color of your choice)
+                data[i] = 0;
+                data[i + 1] = 0;
+                data[i + 2] = 0;
+            }
+        }
+
+        // Update the canvas with the modified image data
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    // RGB to HSV conversion
+    function rgbToHsv(r, g, b) {
+        r /= 255;
+        g /= 255;
+        b /= 255;
+        let max = Math.max(r, g, b), min = Math.min(r, g, b);
+        let h, s, v = max;
+        let d = max - min;
+        s = max === 0 ? 0 : d / max;
+        if (max === min) {
+            h = 0;
+        } else {
+            switch (max) {
+                case r:
+                    h = (g - b) / d + (g < b ? 6 : 0);
+                    break;
+                case g:
+                    h = (b - r) / d + 2;
+                    break;
+                case b:
+                    h = (r - g) / d + 4;
+                    break;
+            }
+            h /= 6;
+        }
+        return { h: h * 360, s: s * 100, v: v * 100 };  // Return HSV in degrees and percentage
+    }
+
+    // Check if HSV value is within the defined range
+    function isWithinRange(hsv, lowerHue, lowerSaturation, lowerValue, upperHue, upperSaturation, upperValue) {
+        return (hsv.h >= lowerHue && hsv.h <= upperHue &&
+                hsv.s >= lowerSaturation && hsv.s <= upperSaturation &&
+                hsv.v >= lowerValue && hsv.v <= upperValue);
+    }
+</script>
+
 </body>
 </html>
