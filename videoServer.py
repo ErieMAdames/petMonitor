@@ -381,10 +381,11 @@ def find_poop_habichuela(image, brightness = 50):
     clean_mask = cv2.morphologyEx(brown_mask, cv2.MORPH_OPEN, kernel)
     contours, _ = cv2.findContours(clean_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
-    poop_detected = len(sorted_contours) > 0
+    poop_detected = False
     output_image = image.copy()
     for i, contour in enumerate(sorted_contours[:3]):
         if cv2.contourArea(contour) > 100:
+            poop_detected = True
             cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 1)
             x, y, w, h = cv2.boundingRect(contour)
             cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 0, 255), 1)
