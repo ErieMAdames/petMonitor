@@ -36,8 +36,16 @@ async def websocket_handler(websocket):
             cv2.circle(circle_mask, circle_center, circle_radius, 255, thickness=-1)
             masked_img = cv2.bitwise_and(mask, mask, mask=circle_mask)
 
-            # Check if there's any brown color inside the circle
-            brown_detected = np.any(masked_img)
+            # Find contours of the detected brown areas
+            contours, _ = cv2.findContours(masked_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+            # Check if any contours were found (indicating brown kibble is detected)
+            brown_detected = False
+            for contour in contours:
+                if cv2.contourArea(contour) > 500:  # Only consider large enough contours
+                    brown_detected = True
+                    # Draw a red outline around the detected brown area
+                    cv2.drawContours(img, [contour], -1, (0, 0, 255), 2)  # Red outline
 
             # Alert if brown kibble is detected or not
             if brown_detected:
