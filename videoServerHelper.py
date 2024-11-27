@@ -48,7 +48,7 @@ async def websocket_handler(websocket):
             # Convert the image back to BGR for sending to the websocket
             _, jpeg = cv2.imencode('.jpg', img)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
-            response = json.dumps({"pet": "shadow", "image": img_base64})
+            response = json.dumps({"image": img_base64})
             await websocket.send(response)
 
 async def start_websocket_server_monitor():
