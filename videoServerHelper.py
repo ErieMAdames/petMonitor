@@ -21,7 +21,7 @@ async def websocket_handler(websocket):
             image = picam2.capture_array()
             hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
             lower_brown = np.array([10, 30, 40])  
-            upper_brown = np.array([30, 255, 20])
+            upper_brown = np.array([30, 200, 200])
             circle_center = (int(image.shape[1] / 2), int(image.shape[0] / 2))
             circle_radius = 125  # Adjust the radius as needed
             cv2.circle(image, circle_center, circle_radius, (0, 255, 0), 2)
