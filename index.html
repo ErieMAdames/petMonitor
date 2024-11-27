@@ -4,23 +4,11 @@
 <script>
     let ws;
     let ws_images;
-    let ws_food;
 
     function initWebSocket() {
         ws = new WebSocket('ws://' + window.location.hostname + ':8765/ws');
         ws_images = new WebSocket('ws://' + window.location.hostname + ':8744/ws');
         ws_images.binaryType = "arraybuffer";
-        ws_food = new WebSocket('ws://192.168.86.47:8500/ws');
-        ws_food.binaryType = "arraybuffer";
-        ws_food.onopen = () => {
-            console.log("WebSocket for Shadow & Habichuela connection established");
-            setInterval(
-                function() {
-                    ws_food.send(JSON.stringify({ food: "food" }));
-                },
-                500
-            );
-        }
         ws.onopen = () => console.log("WebSocket connection established");
         ws.onclose = () => console.log("WebSocket connection closed");
         ws_images.onopen = () => {
@@ -58,19 +46,6 @@
             );
             ws_images.send(JSON.stringify({ state: "state" }));
         };
-        ws_food.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            if (data.image) {
-                const byteCharacters = atob(data.image); // Decode Base64 string
-                const byteNumbers = new Uint8Array(byteCharacters.length);
-                for (let i = 0; i < byteCharacters.length; i++) {
-                    byteNumbers[i] = byteCharacters.charCodeAt(i);
-                }
-                const blob = new Blob([byteNumbers], { type: "image/jpeg" });
-                const imageUrl = URL.createObjectURL(blob);
-                document.getElementById('shadow-food-capture').src = imageUrl;
-            }
-        }
         ws_images.onclose = () => console.log("WebSocket for Shadow & Habichuela connection closed");
         const shadowPoopCapture = document.querySelector('.shadow-poop-capture');
         const shadowPoopDetectedWarning = document.querySelector('.shadow-poop-capture-container .detected');
@@ -139,7 +114,16 @@
                 } else {
                     foodLevelMessage.innerHTML = 'Food levels normal';
                     foodLevelMessage.classList.remove('refill');
+                }if (data.image) {
+                const byteCharacters = atob(data.image); // Decode Base64 string
+                const byteNumbers = new Uint8Array(byteCharacters.length);
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
                 }
+                const blob = new Blob([byteNumbers], { type: "image/jpeg" });
+                const imageUrl = URL.createObjectURL(blob);
+                document.getElementById('shadow-food-capture').src = imageUrl;
+            }
             }
             if (data.bark_detected !== undefined) {
                 if (data.bark_detected) {

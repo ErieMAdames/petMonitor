@@ -28,6 +28,8 @@ import requests
 import schedule
 from datetime import datetime
 
+other_pi_http = "http://192.168.86.47:8500/detect_food"  # Replace with your WebSocket server URL
+
 DB_PATH = "pet_monitor.db"
 SAMPLERATE = 16000  # Sampling rate (Hz)
 CHUNK_SIZE = 1024   # Number of audio frames per chunk
@@ -534,20 +536,23 @@ async def websocket_poop_handler(websocket):
             response = json.dumps({"water_level": water_level, 'water_out': water_out})
             await websocket.send(response)
         if data.get("food_level", None) == 'food_level':
-            food_level = ultrasonic.get_distance()
-            food_out = food_level > 30 or food_level < 29
-            if food_out and not food_ran_out:
-                food_ran_out = True
-                food_refilled = False
-                log_food_event('out')
-                send_notification('Out of Food', "Shadow is out of food, he needs to eat")
-            if not food_out and not food_refilled:
-                food_refilled = True
-                food_ran_out = False
-                log_food_event('refill')
-                send_notification('Food refilled', "Shadow had food to eat now")
-            response = json.dumps({"food_level": food_level, 'food_out': food_out})
-            await websocket.send(response)
+            httpResponse = requests.post(other_pi_http, headers={'Content-Type': 'application/json'}, json={"food": "food"})
+            if httpResponse.status_code == 200:
+                result = httpResponse.json()
+                img_base64 = result["image"]
+                food_out = result["food_out"]
+                if food_out and not food_ran_out:
+                    food_ran_out = True
+                    food_refilled = False
+                    log_food_event('out')
+                    send_notification('Out of Food', "Shadow is out of food, he needs to eat")
+                if not food_out and not food_refilled:
+                    food_refilled = True
+                    food_ran_out = False
+                    log_food_event('refill')
+                    send_notification('Food refilled', "Shadow had food to eat now")
+                response = json.dumps({'food_level': True, 'food_out': food_out, 'image': img_base64})
+                await websocket.send(response)
         if data.get("loudness", None) == 'loudness':
             global rms
             global bark_detected
