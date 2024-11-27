@@ -16,12 +16,10 @@ async def websocket_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
         if data.get("food", None) == 'food':
-            lower_brown = np.array([10, 100, 100])  # Lower bound of brown color in HSV
-            upper_brown = np.array([20, 255, 255])  # Upper bound of brown color in HSV
             image = picam2.capture_array()
             hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-            # lower_brown = np.array([10, 30, 40])  
-            # upper_brown = np.array([30, 200, 200])
+            lower_brown = np.array([10, 30, 40])  
+            upper_brown = np.array([30, 200, 200])
             circle_center = (int(image.shape[1] / 2), int(image.shape[0] / 2))
             circle_radius = 125  # Adjust the radius as needed
             cv2.circle(image, circle_center, circle_radius, (0, 255, 0), 2)
