@@ -68,7 +68,7 @@ async def websocket_handler(websocket):
                 cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 1)
                 x, y, w, h = cv2.boundingRect(contour)
                 cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 0, 255), 1)
-            _, jpeg = cv2.imencode('.jpg', output_image)
+            _, jpeg = cv2.imencode('.jpg', image)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
             response = json.dumps({"image": img_base64})
             await websocket.send(response)
@@ -93,4 +93,4 @@ picam2.start()
 try:
     asyncio.run(start_websocket_server_monitor())
 finally:
-    picam2.stop_recording()
+    picam2.stop()
