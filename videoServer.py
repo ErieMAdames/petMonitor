@@ -346,7 +346,6 @@ def find_poop_shadow(image, brightness = 50):
     for contour in sorted_contours:
         if cv2.contourArea(contour) > 100:
             x, y, w, h = cv2.boundingRect(contour)
-            # cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
             cv2.drawContours(image, [contour], 0, (0,255,0), 4)
             mask = np.zeros_like(gray)
             cv2.drawContours(mask, [contour], -1, 255, thickness=cv2.FILLED)
@@ -659,9 +658,6 @@ for cam_setting in cam_settings:
         zoom_level_habichuela = cam_setting[2]
         habichuela_brightness = int(cam_setting[1])
     
-# import pprint
-# pprint.pprint(Picamera2.global_camera_info())
-# exit()
 picam2 = Picamera2()
 config = picam2.create_video_configuration(main={"size": (1280, 960)})
 config["transform"] = libcamera.Transform(vflip=1)
@@ -681,8 +677,6 @@ picam2_shadow_monitor.start()
 picam2_habichuela_monitor = Picamera2(3)
 picam2_habichuela_monitor.start()
 
-# picam2_shadow_food = Picamera2(2)
-# picam2_shadow_food.start()
 try:
     address = ('', 8000)
     server = StreamingServer(address, StreamingHandler)

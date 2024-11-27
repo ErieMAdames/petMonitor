@@ -23,18 +23,7 @@ async def websocket_handler(websocket):
             # # Convert the image to HSV color space for better color detection
             # hsv_img = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-            # # Define the center and radius of the circle
-            # circle_center = (int(img.shape[1] / 2), int(img.shape[0] / 2))
-            # circle_radius = 100  # Adjust the radius as needed
-
-            # # Draw a green circle on the image
-            # cv2.circle(img, circle_center, circle_radius, (0, 255, 0), 2)
-
-            # # Create a mask for the brown color inside the circle
-            # mask = cv2.inRange(hsv_img, lower_brown, upper_brown)
-            # circle_mask = np.zeros_like(mask)
-            # cv2.circle(circle_mask, circle_center, circle_radius, 255, thickness=-1)
-            # masked_img = cv2.bitwise_and(mask, mask, mask=circle_mask)
+            # Define the center and radius of the circle
 
             # # Find contours of the detected brown areas
             # contours, _ = cv2.findContours(masked_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -55,6 +44,18 @@ async def websocket_handler(websocket):
 
             # # Convert the image back to BGR for sending to the websocket
             hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+
+            circle_center = (int(image.shape[1] / 2), int(image.shape[0] / 2))
+            circle_radius = 100  # Adjust the radius as needed
+
+            # Draw a green circle on the image
+            cv2.circle(image, circle_center, circle_radius, (0, 255, 0), 2)
+
+            # Create a mask for the brown color inside the circle
+            mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
+            circle_mask = np.zeros_like(mask)
+            cv2.circle(circle_mask, circle_center, circle_radius, 255, thickness=-1)
+            masked_img = cv2.bitwise_and(mask, mask, mask=circle_mask)
             lower_brown = np.array([5, 50, 20])
             upper_brown = np.array([30, 255, 200])
             brown_mask = cv2.inRange(hsv_image, lower_brown, upper_brown)
@@ -62,13 +63,12 @@ async def websocket_handler(websocket):
             clean_mask = cv2.morphologyEx(brown_mask, cv2.MORPH_OPEN, kernel)
             contours, _ = cv2.findContours(clean_mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
-            poop_detected = len(sorted_contours) > 0
             output_image = image.copy()
             for i, contour in enumerate(sorted_contours[:3]):
                 cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 1)
                 x, y, w, h = cv2.boundingRect(contour)
                 cv2.rectangle(output_image, (x, y), (x + w, y + h), (0, 0, 255), 1)
-            _, jpeg = cv2.imencode('.jpg', image)
+            _, jpeg = cv2.imencode('.jpg', output_image)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
             response = json.dumps({"image": img_base64})
             await websocket.send(response)
