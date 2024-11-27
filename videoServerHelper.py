@@ -54,7 +54,7 @@ async def websocket_handler(websocket):
                 print("No brown kibble detected inside the circle.")
 
             # Convert the image back to BGR for sending to the websocket
-            _, jpeg = cv2.imencode('.jpg', circle_mask)
+            _, jpeg = cv2.imencode('.jpg', masked_img)
             img_base64 = base64.b64encode(jpeg.tobytes()).decode('utf-8')
             response = json.dumps({"image": img_base64})
             await websocket.send(response)
