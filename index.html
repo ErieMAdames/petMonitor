@@ -10,7 +10,7 @@
         ws = new WebSocket('ws://' + window.location.hostname + ':8765/ws');
         ws_images = new WebSocket('ws://' + window.location.hostname + ':8744/ws');
         ws_images.binaryType = "arraybuffer";
-        ws_food = new WebSocket('ws://' + window.location.hostname + ':8500/ws');
+        ws_food = new WebSocket('ws://192.168.86.47:8500/ws');
         ws_food.binaryType = "arraybuffer";
         ws_food.onopen = () => {
             console.log("WebSocket for Shadow & Habichuela connection established");

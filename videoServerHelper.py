@@ -18,7 +18,6 @@ async def websocket_handler(websocket):
     async for message in websocket:
         data = json.loads(message)
         if data.get("food", None) == 'food':
-            print('capturing')
             img = picam2.capture_array()
 
             # Convert the image to HSV color space for better color detection
