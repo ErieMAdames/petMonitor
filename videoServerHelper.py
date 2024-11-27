@@ -20,7 +20,7 @@ async def websocket_handler(websocket):
         if data.get("food", None) == 'food':
             image = picam2.capture_array()
             hsv_image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-            lower_brown = np.array([10, 50, 30])  
+            lower_brown = np.array([10, 30, 40])  
             upper_brown = np.array([30, 255, 200])
             circle_center = (int(image.shape[1] / 2), int(image.shape[0] / 2))
             circle_radius = 125  # Adjust the radius as needed
