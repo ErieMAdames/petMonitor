@@ -365,6 +365,23 @@
             <div class="main-cam-container">
                 <img src="stream.mjpg" class="main-cam"/>
                 <input type="range" min="1" max="100" value="0" id="main-zoom-slider" class="main-zoom-slider" name="main-zoom-slider">
+                <div>
+                    <div class="water-food-level-container">
+                        <p class="water-level-message">
+                            Water level normal
+                        </p>
+                        <div>
+                            <p class="food-level-message">
+                                Food level normal
+                            </p>
+                            <img src="" id="shadow-food-capture"/>
+                        </div>
+                        <p class="dog-level-message">
+                            Shadow is <span class="shadow-loudness-level">quiet</span><br>
+                            Current loudness : <span class="current-loudness-db"></span>db | <span class="current-loudness-rms"></span> rms (not accurate)<br>
+                        </p>
+                    </div>
+                </div>
             </div>
             <div class="poop-capture-container">
                 <div class="shadow-poop-capture-container">
@@ -400,21 +417,6 @@
             </div>
         </div>
         <div class="logs-container">
-            <div class="water-food-level-container">
-                <p class="water-level-message">
-                    Water level normal
-                </p>
-                <div>
-                    <p class="food-level-message">
-                        Food level normal
-                    </p>
-                    <img src="" id="shadow-food-capture"/>
-                </div>
-                <p class="dog-level-message">
-                    Shadow is <span class="shadow-loudness-level">quiet</span><br>
-                    Current loudness : <span class="current-loudness-db"></span>db | <span class="current-loudness-rms"></span> rms (not accurate)<br>
-                </p>
-            </div>
             <div class="event-logs">
                 <h2>Event Logs</h2>
                 <p class="last-food-refill">Last food refill time <span class="last-food-refill-time"></span></p>
