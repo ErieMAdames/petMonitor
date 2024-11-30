@@ -27,7 +27,7 @@ import requests
 import schedule
 from datetime import datetime
 
-other_pi_http = "http://192.168.86.50:8500/detect_food"  # Replace with your WebSocket server URL
+other_pi_http = "http://192.168.86.51:8500/detect_food"  # Replace with your WebSocket server URL
 
 DB_PATH = "pet_monitor.db"
 SAMPLERATE = 16000  # Sampling rate (Hz)
