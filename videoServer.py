@@ -476,9 +476,8 @@ async def websocket_poop_handler(websocket):
             img, detected = find_poop_habichuela(img, habichuela_brightness)
             if detected:
                 if not habichuela_pooped and habichuela_poop_clean_time is None:
-                    if habichuela_poop_start_time is None:
+                    if habichuela_poop_start_time is None or time.time() - habichuela_poop_start_time >= DETECTION_DURATION_THRESHOLD:
                         habichuela_poop_start_time = time.time()
-                    elif time.time() - habichuela_poop_start_time >= DETECTION_DURATION_THRESHOLD:
                         log_activity("habichuela pooped")
                         send_notification('Habichuela pooped', 'Habichuela pooped, add some baking soda to the litterbox')
                         habichuela_pooped = True
