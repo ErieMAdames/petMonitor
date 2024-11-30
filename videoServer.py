@@ -440,9 +440,8 @@ async def websocket_poop_handler(websocket):
             img, detected = find_poop_shadow(img, shadow_brightness)
             if detected:
                 if not shadow_pooped and shadow_poop_clean_time is None:
-                    if shadow_poop_start_time is None:
+                    if shadow_poop_start_time is None or time.time() - shadow_poop_start_time >= DETECTION_DURATION_THRESHOLD:
                         shadow_poop_start_time = time.time()
-                    elif time.time() - shadow_poop_start_time >= DETECTION_DURATION_THRESHOLD:
                         log_activity("shadow pooped")
                         shadow_pooped = True
                         send_notification('Shadow pooped', 'Shadow pooped, clean up the puppy pad')
