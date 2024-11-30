@@ -352,7 +352,7 @@ def find_poop_shadow(image, brightness = 50):
             masked_image = cv2.bitwise_and(gray, gray, mask=mask)
             gray[np.where(masked_image == 0)] = 255
             bright_area = 255 - gray[y:y+h, x:x+w]
-            _, dark_thresholded = cv2.threshold(bright_area, 200, 255, cv2.THRESH_BINARY) 
+            _, dark_thresholded = cv2.threshold(bright_area, 50, 255, cv2.THRESH_BINARY) 
             dark_contours, _ = cv2.findContours(dark_thresholded, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
             dark_contours = sorted(dark_contours, key=cv2.contourArea, reverse=True) 
             for dark_contour in dark_contours:
