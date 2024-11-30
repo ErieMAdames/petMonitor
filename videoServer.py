@@ -624,7 +624,7 @@ def audio_callback(indata, frames, time_, status):
             if music_playing == None or time.time() - music_playing >= 240:
                 music_playing = time.time()
                 play_music()    
-    elif time.time() - last_bark_time >= 60:
+    elif last_bark_time is None or time.time() - last_bark_time >= 60:
         bark_detected = False
 
 def run_scheduler_thread():
