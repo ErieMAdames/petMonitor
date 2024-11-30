@@ -11,7 +11,6 @@ import sounddevice as sd
 from servo import Servo
 from pwm import PWM
 from adc import ADC
-from ultrasonic import Ultrasonic
 from picamera2 import Picamera2
 from picamera2.encoders import JpegEncoder
 from picamera2.outputs import FileOutput
@@ -80,7 +79,7 @@ servo0.set_angle(servo0_angle_offset)
 servo1.set_angle(servo1_angle_offset)
 shadow_brightness = 50
 habichuela_brightness = 50
-ultrasonic = Ultrasonic()
+
 def send_notification(title, message):
     global pushover_token
     global pushover_user_key
