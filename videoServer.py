@@ -48,7 +48,7 @@ water_ran_out = False
 water_refilled = True
 food_ran_out = False
 food_refilled = True
-DETECTION_DURATION_THRESHOLD = 10  # 2 minutes in seconds
+DETECTION_DURATION_THRESHOLD = 120  # 2 minutes in seconds
 zoom_level_main = 1.0
 zoom_level_shadow = 1.0
 zoom_level_habichuela = 1.0
@@ -383,7 +383,7 @@ def find_poop_habichuela(image, brightness = 50):
     poop_detected = False
     output_image = image.copy()
     for i, contour in enumerate(sorted_contours[:3]):
-        if cv2.contourArea(contour) > 100:
+        if cv2.contourArea(contour) > 200:
             poop_detected = True
             cv2.drawContours(output_image, [contour], -1, (0, 0, 255), 1)
             x, y, w, h = cv2.boundingRect(contour)
